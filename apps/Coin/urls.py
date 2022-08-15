@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CoinsList, CoinsPrice,List_Currencies
+from .views import CoinsList, CoinsPrice, List_Currencies
 
 
 
