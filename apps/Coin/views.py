@@ -13,7 +13,7 @@ class CoinsList(APIView):  # список всех криптовалют
     """" Список вчех криптовалют"""
     def get(self, request):
         data = requests.get("https://api.coingecko.com/api/v3/coins/list?include_platform=true").json()
-
+        data.objects.filter('name')
         return Response(data, status=status.HTTP_200_OK)
 
 
