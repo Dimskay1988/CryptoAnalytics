@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.Coin.apps.CoinConfig',
     'apps.Employees.apps.EmployeesConfig',
     'rest_framework',
+    # 'django_celery_beat',
 
 ]
 
