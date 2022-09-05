@@ -1,59 +1,57 @@
-from django.core.management.base import BaseCommand
 from django.conf import settings
-from telegram import Bot
-from telegram import Update
-from telegram.ext import CallbackContext
-from telegram.ext import Filters
-from telegram.ext import MessageHandler
-from telegram.ext import Updater
-from telegram.utils.request import Request
+from apps.Employees.models import Profile
+from telebot import types
+import telebot
+
+bot = telebot.TeleBot(token=settings.TOKEN)
 
 
-def log_errors(f):
-    def inner(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except Exception as e:
-            error_message = f'Error: {e}'
-            print(error_message)
-            raise e
-
-    return inner
+def registration():
+    pass
 
 
-@log_errors
-def do_echo(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-    text = update.message.text
+@bot.message_handler(commands=['start'])
+def start(message):
+    rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+    rmk.add(types.KeyboardButton('Зарегистрироваться'), types.KeyboardButton('Использовать данные телеграм'))
 
-    reply_text = 'You ID = {}\n\n{}'.format(chat_id, text)
-    update.message.reply_text(
-        text=reply_text,
-    )
+    msg = bot.send_message(message.chat.id, 'Для того чтоб продолжить, выберите способ для регистрации',
+                           reply_markup=rmk)
+    bot.register_next_step_handler(msg, user_register)
 
 
-class Command(BaseCommand):
-    help = 'Telegram-bot'
+def user_register(message):
+    if message.text == 'Использовать данные телеграм':
+        bot.send_message(message.chat.id,
+                         f'Вы зарегистрированы как: {message.from_user.first_name} {message.from_user.last_name}')
+        Profile.objects.get_or_create(id_user=message.chat.id, defaults={'name': message.from_user.first_name,
+                                                                         'surname': message.from_user.last_name})
+    elif message.text == 'Зарегистрироваться':
+        msg = bot.send_message(message.chat.id, 'Введите имя пользователя')
+        bot.register_next_step_handler(msg, new_user_name)
+    else:
+        bot.send_message(message.chat.id, 'Пройдите пожалуйста регистрацию')
 
-    def handle(self, *args, **options):
-        request = Request(
-            connect_timeout=0.5,
-            read_timeout=1.0,
-        )
-        bot = Bot(
-            request=request,
-            token=settings.TOKEN,
-        )
-        print(bot.get_me)
 
-        # обработчик сообщений
-        updater = Updater(
-            bot=bot,
-            use_context=True
-        )
-        message_handler = MessageHandler(Filters.text, do_echo)
-        updater.dispatcher.add_handler(message_handler)
+def new_user_name(message):
+    last_name = message.text
+    msg = bot.send_message(message.chat.id, f'Хорошо {last_name} введите вашу фамилию')
+    bot.register_next_step_handler(msg, new_last_name, last_name)
 
-        # Бесконечная обработка сообщений
-        updater.start_polling()
-        updater.idle()
+
+def new_last_name(message, last_name):
+    first_name = message.text
+    Profile.objects.get_or_create(id_user=message.chat.id, defaults={'name': last_name, 'surname': first_name})
+    bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
+
+
+@bot.message_handler(commands=['coin'])
+def coin(message):
+    mess = f'{message.from_user.first_name} {message.from_user.last_name}'
+    bot.send_message(message.chat.id, f'Привет {mess}')
+
+
+
+
+
+bot.polling(none_stop=True)

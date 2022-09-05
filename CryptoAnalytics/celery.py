@@ -15,4 +15,4 @@ app.conf.beat_schedule = {
         'args': (12, 12),
     },
 }
-
+app.conf.timezone = 'UTC'

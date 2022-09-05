@@ -43,10 +43,11 @@ INSTALLED_APPS = [
     'apps.Coin.apps.CoinConfig',
     'apps.Employees.apps.EmployeesConfig',
     'rest_framework',
+    # 'django_celery_beat',
 
 ]
 
-AUTH_USER_MODEL = 'Employees.CustomUser'
+# AUTH_USER_MODEL = 'Employees.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
