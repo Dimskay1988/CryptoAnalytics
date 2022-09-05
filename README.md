@@ -1,4 +1,4 @@
-# CryptoAnalytics
+# Crypto Analytics
 
 The first thing to do is to clone the repository:
 ```sh
@@ -16,10 +16,9 @@ Note the `(.venv)` in front of the prompt. This indicates that this terminal
 session operates in a virtual environment set up by `venv`.
 Once `pip` has finished downloading the dependencies:
 Create migrations:
-```sh
 (.venv)$ make migrate
 ```
-Create .env file in TaskAlloProject root folder:
+Create .env file in CryptoAnalytics root folder:
 ```sh
 touch .env
 ```
@@ -57,10 +56,6 @@ SECRET_KEY = os.getenv('DJANGO_SECRET',)
 Your secret key should be in .env file like this:
 ```sh
 DJANGO_SECRET=asddsad231jsfjp32ojrjpfjsdoivzoidvhoxicj 
-```
-Add test data to the database, enter the command:
-```sh
-make add test bd
 ```
 And finally (to this moment):
 ```sh
