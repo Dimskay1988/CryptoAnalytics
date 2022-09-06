@@ -51,11 +51,23 @@ If .env by pycharm:
 In the end .env must be in the same folder with manage.py
 Now you can import os in settings.py to substitute your secrets in the following way:
 ```sh
-SECRET_KEY = os.getenv('DJANGO_SECRET',)
+SECRET_KEY = config('SECRET_KEY')
 ```
-Your secret key should be in .env file like this:
+```sh
+DEBUG = config('DEBUG')
+```
+```sh
+TOKEN = config('TOKEN')
+```
+Your secret key, token and debug should be in .env file like this:
 ```sh
 DJANGO_SECRET=asddsad231jsfjp32ojrjpfjsdoivzoidvhoxicj 
+```
+```sh
+DEBUG=True/False
+```
+```sh
+TOKEN=5483495161:AaaF4AadsdfdaKJdkJ-D9xG_UdkKJSEZfd6c
 ```
 And finally (to this moment):
 ```sh
