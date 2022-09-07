@@ -151,3 +151,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 # BOT settings
 TOKEN = os.getenv('TOKEN')
+
+
+django_on_heroku.settings(locals())
