@@ -157,3 +157,4 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 # BOT settings
 TOKEN = os.getenv('TOKEN')
+import django_on_heroku
