@@ -45,14 +45,10 @@ def new_last_name(message, last_name):
     bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
 
 
-
 @bot.message_handler(commands=['coin'])
 def coin(message):
     mess = f'{message}'
     bot.send_message(message.chat.id, f'Привет {mess}')
-
-
-
 
 
 bot.polling(none_stop=True)
