@@ -2,7 +2,6 @@ amqp==5.1.1
 APScheduler==3.6.3
 asgiref==3.5.2
 async-timeout==4.0.2
-backports.zoneinfo;python_version<"3.9"
 billiard==3.6.4.0
 cachetools==4.2.2
 celery==5.2.7
@@ -51,4 +50,3 @@ wcwidth==0.2.5
 whitenoise==6.2.0
 wrapt==1.14.1
 zipp==3.8.1
-
