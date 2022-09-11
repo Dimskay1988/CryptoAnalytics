@@ -9,10 +9,8 @@ class ListCurrencies(models.Model):
 
 
 class Coins(models.Model):
-    id = models.TextField(primary_key=True, max_length=130)
-    symbol = models.CharField(max_length=30)
     name = models.CharField(max_length=30)
-    platforms = models.CharField(max_length=300, null=True)
+
 
     def __str__(self):
         return self.name

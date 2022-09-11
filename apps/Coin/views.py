@@ -1,25 +1,27 @@
 import json
 import requests
+from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from pycoingecko import CoinGeckoAPI
 from apps.Coin.models import ListCurrencies, Coins
-from apps.Coin.serializer import CoinsSerializer
+from apps.Coin.serializer import CoinsSerializer, ListcurrenciesSerializer
+from rest_framework import viewsets
 
 cg = CoinGeckoAPI()
 
 
 class CoinsList(APIView):  # список всех криптовалют
     """" Список вcех криптовалют"""
+
     def get(self, request):
-        data = requests.get("https://api.coingecko.com/api/v3/coins/list?include_platform=true").json()
-        CoinsSerializer.create(data, validated_data=data)
+        data = requests.get("https://api.coingecko.com/api/v3/coins/list").json()
         return Response(data, status=status.HTTP_200_OK)
 
-    def create(self, validated_data):
-        data = requests.get("https://api.coingecko.com/api/v3/coins/list?include_platform=true").json()
-        return Coins.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     data = requests.get("https://api.coingecko.com/api/v3/coins/list?include_platform=true").json()
+    #     return Coins.objects.create(**validated_data)
 
 
 class CoinsPrice(APIView):  # получение одной крипто валюты по id
@@ -36,9 +38,18 @@ class List_Currencies(APIView):
     def get(self, request):
         data = cg.get_supported_vs_currencies()
         for i in data:
-            ListCurrencies.objects.aget_or_create(currency=i)
+            ListCurrencies.objects.create(currency=i)
         return Response(data, status=status.HTTP_200_OK)
 
 
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    Валюта
+    """
+    serializer_class = CoinsSerializer
+    queryset = ListCurrencies.objects.all()
+    def get_object(self):
+        data = ListCurrencies.objects.all()
+        return Response(data)
 
 

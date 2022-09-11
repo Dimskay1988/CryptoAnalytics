@@ -1,5 +1,9 @@
+import string
+
 from django.conf import settings
 from apps.Employees.models import Profile
+from apps.Coin.models import ListCurrencies
+from apps.Coin.views import List_Currencies, UserViewSet
 from telebot import types
 import telebot
 
@@ -45,10 +49,12 @@ def new_last_name(message, last_name):
     bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
 
 
-@bot.message_handler(commands=['coin'])
-def coin(message):
-    mess = f'{message}'
-    bot.send_message(message.chat.id, f'Привет {mess}')
+@bot.message_handler(commands=['coin_price'])
+def price(message):
+    coins = ''
+    for e in ListCurrencies.objects.all():
+        coins += f' {e.currency.upper()},'
+    bot.send_message(message.chat.id, f'Список всех валют: {coins}\nВыберите валюту в которой хотите отслеживать курс')
 
 
 bot.polling(none_stop=True)
