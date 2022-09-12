@@ -47,12 +47,22 @@ class CoinTop(APIView):
                             vs_currencies=['usd', 'eur', 'uah', 'cny'])
         for name in data:
             Coins.objects.update_or_create(name=name, usd=data[name]['usd'], eur=data[name]['eur'],
-                                           uah=data[name]['uah'],
-                                           cny=data[name]['cny'])
+                                           uah=data[name]['uah'], cny=data[name]['cny'])
         return Response(data, status=status.HTTP_200_OK)
 
 
-class CoinsTest(ModelViewSet):
+class CoinsView(viewsets.ModelViewSet):
     """Отслеживаемые криптовалюты"""
     serializer_class = CoinsSerializer
     queryset = Coins.objects.all()
+
+
+    # def list(self, request):
+    #     queryset = Coins.objects.all()
+    #     serializer = CoinsSerializer(queryset, many=True)
+    #     return Response(serializer.data)
+
+
+    # def get(self, request):
+    #     data = [coin.name for coin in Coins.objects.all()]
+    #     return Response(data)

@@ -11,3 +11,4 @@ from apps.Coin.models import Coins
 class CoinsAdmin(admin.ModelAdmin):
     list_display = ('name', 'usd', 'eur', 'uah', 'cny')
     fields = ['name', 'usd', 'eur', 'uah', 'cny']
+    search_fields = ['name']
