@@ -1,12 +1,14 @@
 from django.contrib import admin
-from apps.Coin.models import ListCurrencies, Coins
+from apps.Coin.models import Coins
 
 
-@admin.register(ListCurrencies)
-class ListCurrenciesAdmin(admin.ModelAdmin):
-    pass
-
-
+# @admin.register(Currency)
+# class CurrencyAdmin(admin.ModelAdmin):
+#     pass
+#
+#
 @admin.register(Coins)
 class CoinsAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'usd', 'eur', 'uah', 'cny')
+    fields = ['name', 'usd', 'eur', 'uah', 'cny']
+    search_fields = ['name']
