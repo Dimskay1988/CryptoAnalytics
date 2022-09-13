@@ -27,10 +27,11 @@ def start(message):
 
 def user_register(message):
     if message.text == 'Использовать данные телеграм':
-        bot.send_message(message.chat.id,
-                         f'Вы зарегистрированы как: {message.from_user.first_name} {message.from_user.last_name}')
         Profile.objects.get_or_create(id_user=message.chat.id, defaults={'name': message.from_user.first_name,
                                                                          'surname': message.from_user.last_name})
+        bot.send_message(message.chat.id,
+                         f'Вы зарегистрированы как: {message.from_user.first_name} {message.from_user.last_name}')
+
     elif message.text == 'Зарегистрироваться':
         msg = bot.send_message(message.chat.id, 'Введите имя пользователя')
         bot.register_next_step_handler(msg, new_user_name)
