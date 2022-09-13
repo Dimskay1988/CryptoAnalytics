@@ -7,6 +7,7 @@ class Coins(models.Model):
     eur = models.FloatField(max_length=30)
     uah = models.FloatField(max_length=30)
     cny = models.FloatField(max_length=30)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name

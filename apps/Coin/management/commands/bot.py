@@ -52,11 +52,17 @@ def new_last_name(message, last_name):
 
 @bot.message_handler(commands=['coin_price'])
 def price(message):
-    data = Coins.objects.all()
-    coin = ''
-    for co in data:
-        coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
-    bot.send_message(message.chat.id, f'Актуальный курс: \n{coin}')
+    if Profile.objects.filter(id_user=message.chat.id).exists():
+        data = Coins.objects.all()
+        coin = ''
+        date = ''
+        for co in data:
+            date = co.created_at
+            coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
+        bot.send_message(message.chat.id, f'Актуальный курс {date}: \n{coin}')
+    else:
+        msg = bot.send_message(message.chat.id, f'Пройдите пожалуйста регистрацию')
+        bot.register_next_step_handler(msg, user_register)
 
 
 bot.polling(none_stop=True)
