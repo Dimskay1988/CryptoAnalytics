@@ -27,8 +27,9 @@ def start(message):
     bot.register_next_step_handler(msg, user_reply)
 
 
+
 def user_reply(message):
-    if message.text == 'Зарегистрироваться с ипользованием данных телеграм':
+    if message.text == 'Зарегистрироваться с ипользованием данных телеграм'
         Profile.objects.get_or_create(id_user=message.chat.id, defaults={'name': message.from_user.first_name,
                                                                          'surname': message.from_user.last_name})
         bot.send_message(message.chat.id,

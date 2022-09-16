@@ -56,12 +56,10 @@ class CoinsView(viewsets.ModelViewSet):
     serializer_class = CoinsSerializer
     queryset = Coins.objects.all()
 
-
     # def list(self, request):
     #     queryset = Coins.objects.all()
     #     serializer = CoinsSerializer(queryset, many=True)
     #     return Response(serializer.data)
-
 
     # def get(self, request):
     #     data = [coin.name for coin in Coins.objects.all()]
