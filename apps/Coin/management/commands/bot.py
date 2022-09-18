@@ -71,7 +71,6 @@ def coin_price(message):
     if Profile.objects.filter(id_user=message.chat.id).exists():
         data = Coins.objects.all()
         coin = ''
-        date = ''
         for co in data:
             dat = co.created_at.date()
             tim = str(co.created_at.time()).split('.')
