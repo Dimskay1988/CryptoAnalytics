@@ -50,6 +50,8 @@ def user_reply(message):
     elif message.text == 'Просмотреть актуальный курс криптовалют':
         msg = bot.send_message(message.chat.id, 'ввести симввол')
         bot.register_next_step_handler(msg, coin_price)
+    elif message.text == 'HitGab':
+        bot.send_message(message.chat.id, 'https://github.com/Dimskay1988/CryptoAnalytics')
     else:
         bot.send_message(message.chat.id, 'Пройдите пожалуйста регистрацию')
 
@@ -72,8 +74,8 @@ def coin_price(message):
         data = Coins.objects.all()
         coin = ''
         for co in data:
-            dat = co.created_at.date()
-            tim = str(co.created_at.time()).split('.')
+            dat = co.updated_at.date()
+            tim = str(co.updated_at.time()).split('.')
             coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
         msg = bot.send_message(message.chat.id, f'Актуальный курс {dat} {tim[0]}: \n{coin}')
         bot.register_next_step_handler(msg, user_reply)
