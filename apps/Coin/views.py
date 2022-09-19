@@ -45,9 +45,10 @@ class CoinTop(APIView):
     def get(self, request):
         data = cg.get_price(ids=['bitcoin', 'litecoin', 'ethereum', 'solana', 'cardano', 'tether'],
                             vs_currencies=['usd', 'eur', 'uah', 'cny'])
+        print(data.keys())
         for name in data:
-            Coins.objects.update_or_create(name=name, usd=data[name]['usd'], eur=data[name]['eur'],
-                                           uah=data[name]['uah'], cny=data[name]['cny'])
+            Coins.objects.update_or_create(name=name, defaults={'usd': data[name]['usd'], 'eur': data[name]['eur'],
+                                           'uah': data[name]['uah'], 'cny': data[name]['cny']})
         return Response(data, status=status.HTTP_200_OK)
 
 
