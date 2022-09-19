@@ -13,6 +13,6 @@ class ProfileAdmin(admin.ModelAdmin):
 
 @admin.register(MessageProfile)
 class MessageProfileAdmin(admin.ModelAdmin):
-    list_display = ('id_profile', 'coin', 'currency')
-    list_filter = ('coin', 'currency')
+    list_display = ('id_profile', 'coin', 'currency', 'price', 'created_at')
+    list_filter = ('coin', 'currency', 'created_at')
     search_fields = ('id_profile', 'coin', 'currency', 'created_at')

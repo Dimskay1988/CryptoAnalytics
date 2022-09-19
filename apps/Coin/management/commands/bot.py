@@ -83,9 +83,9 @@ def coin_price(message):
 
 
 def choice_cryptocurrency(message):
-    coin_up = message.text
-    bot.send_message(message.chat.id, f'Вы выбрали {coin_up}')
-    if (coin_up.lower()) in ['bitcoin', 'litecoin', 'ethereum', 'solana', 'cardano', 'tether']:
+    currency = message.text
+    bot.send_message(message.chat.id, f'Вы выбрали {currency}')
+    if (currency.lower()) in ['bitcoin', 'litecoin', 'ethereum', 'solana', 'cardano', 'tether']:
         rmk = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=True)
         btn1 = types.KeyboardButton("USD")
         btn2 = types.KeyboardButton("EUR")
@@ -93,22 +93,22 @@ def choice_cryptocurrency(message):
         btn4 = types.KeyboardButton("CNY")
         rmk.add(btn1, btn2, btn3, btn4)
         msg = bot.send_message(message.chat.id, f'Выберете валюту', reply_markup=rmk)
-        bot.register_next_step_handler(msg, choice_coin, coin_up)
+        bot.register_next_step_handler(msg, choice_coin, currency)
     else:
         bot.send_message(message.chat.id, "Выберите из списка выше")
 
 
-def choice_coin(message, coin):
-    currency = message.text
-    if (currency.lower()) in ['usd', 'eur', 'uah', 'cny']:
-        bot.send_message(message.chat.id, f'Вы выбрали {coin} в {currency}')
-        data = Coins.objects.filter(name=(coin.lower())).values((currency.lower()))
+def choice_coin(message, currency):
+    coin = message.text
+    if (coin.lower()) in ['usd', 'eur', 'uah', 'cny']:
+        bot.send_message(message.chat.id, f'Вы выбрали {currency} в {coin}')
+        data = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
         well = ''
         for i in data:
-            well += str(i[f'{currency.lower()}'])
+            well += str(i[f'{coin.lower()}'])
         profil = Profile.objects.filter(id_user=message.chat.id)
-        MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency)
-        bot.send_message(message.chat.id, f'Актуальный курс {coin} {well} {currency.upper()}')
+        MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=well)
+        bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
     else:
         bot.send_message(message.chat.id, f'Вы не правильно выбрали валюту')
 
