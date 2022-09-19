@@ -29,7 +29,7 @@ def start(message):
 
 def user_reply(message):
     if message.text == 'Зарегистрироваться с ипользованием данных телеграм':
-        Profile.objects.get_or_create(id_user=message.chat.id, defaults={'name': message.from_user.first_name,
+        Profile.objects.update_or_create(id_user=message.chat.id, defaults={'name': message.from_user.first_name,
                                                                          'surname': message.from_user.last_name})
         bot.send_message(message.chat.id,
                          f'Вы зарегистрированы как: {message.from_user.first_name} {message.from_user.last_name}')
@@ -62,7 +62,7 @@ def new_user_name(message):
 
 def new_last_name(message, last_name):
     first_name = message.text
-    Profile.objects.get_or_create(id_user=message.chat.id, defaults={'name': last_name, 'surname': first_name})
+    Profile.objects.update_or_create(id_user=message.chat.id, defaults={'name': last_name, 'surname': first_name})
     msg = bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
     bot.register_next_step_handler(msg, start)  # хз может и не надо
 
