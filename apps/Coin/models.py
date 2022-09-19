@@ -1,5 +1,6 @@
 from django.db import models
-
+from datetime import datetime
+from django.utils import timezone
 
 class Coins(models.Model):
     name = models.CharField(max_length=30)
@@ -7,8 +8,7 @@ class Coins(models.Model):
     eur = models.FloatField(max_length=30)
     uah = models.FloatField(max_length=30)
     cny = models.FloatField(max_length=30)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=timezone.now())
 
     def __str__(self):
         return self.name

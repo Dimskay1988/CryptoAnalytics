@@ -20,7 +20,7 @@ class Profile(models.Model):
 
 class MessageProfile(models.Model):
     currency = models.TextField(verbose_name='Отслеживаемая криптовалют')
-    coin = models.TextField(verbose_name='В валюте')
+    coin = models.TextField(verbose_name='Валюта')
     price = models.FloatField(max_length=30, verbose_name='Стоимость')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
     id_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
