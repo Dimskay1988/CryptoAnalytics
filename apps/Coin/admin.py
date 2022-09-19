@@ -9,6 +9,6 @@ from apps.Coin.models import Coins
 #
 @admin.register(Coins)
 class CoinsAdmin(admin.ModelAdmin):
-    list_display = ('name', 'usd', 'eur', 'uah', 'cny', 'created_at')
-    fields = ['name', 'usd', 'eur', 'uah', 'cny', 'created_at']
+    list_display = ('name', 'usd', 'eur', 'uah', 'cny', 'created_at', 'updated_at')
+    fields = ['name', 'usd', 'eur', 'uah', 'cny', 'created_at', 'updated_at']
     search_fields = ['name']

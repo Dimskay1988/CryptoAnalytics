@@ -1,8 +1,14 @@
 from rest_framework import serializers
-from .models import Profile
+from .models import Profile, MessageProfile
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id_user', 'name', 'surname']
+        fields = ['id', 'id_user', 'name', 'surname']
+
+
+class MessageProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MessageProfile
+        fields = ['id', 'id_profile', 'coin', 'currency', 'created_at']

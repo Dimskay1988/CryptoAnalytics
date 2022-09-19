@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile
+from .models import Profile, MessageProfile
 from .Forms import ProfileForm
 
 
@@ -10,3 +10,9 @@ class ProfileAdmin(admin.ModelAdmin):
     search_fields = ("id", "id_user", "name", "surname", "created_at")
     form = ProfileForm
 
+
+@admin.register(MessageProfile)
+class MessageProfileAdmin(admin.ModelAdmin):
+    list_display = ('id_profile', 'coin', 'currency', 'price', 'created_at')
+    list_filter = ('coin', 'currency', 'created_at')
+    search_fields = ('id_profile', 'coin', 'currency', 'created_at')
