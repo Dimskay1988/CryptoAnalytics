@@ -2,7 +2,7 @@ import json
 import string
 from datetime import datetime, date, time
 from django.conf import settings
-from apps.Employees.models import Profile
+from apps.Employees.models import Profile, MessageProfile
 from apps.Coin.models import Coins
 from apps.Coin.views import CoinsView
 from telebot import types
@@ -106,6 +106,8 @@ def choice_coin(message, coin):
         well = ''
         for i in data:
             well += str(i[f'{currency.lower()}'])
+        profil = Profile.objects.filter(id_user=message.chat.id)
+        MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency)
         bot.send_message(message.chat.id, f'Актуальный курс {coin} {well} {currency.upper()}')
     else:
         bot.send_message(message.chat.id, f'Вы не правильно выбрали валюту')
