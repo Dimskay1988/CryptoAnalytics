@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'apps.Employees.apps.EmployeesConfig',
     'rest_framework',
     'django_celery_results',
-    # 'django_celery_beat',
+    'django_celery_beat',
 
 ]
 
@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Europe/Minsk'
+# TIME_ZONE = 'Europe/Minsk'
 # CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
 
@@ -129,8 +129,10 @@ CACHES = {
     }
 }
 
+USE_TZ = True
 
 USE_I18N = True
+
 USE_L10N = True
 
 # Static files (CSS, JavaScript, Images)
@@ -155,6 +157,7 @@ REDIS_PORT = '6379'
 CELERY_BROKER_URL = 'redis://127.0.0.1:16379/0'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'default'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 # CELERY_BROKER_TRANSPORT_OPTION = {'visibility_timeout': 3600}
 # CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
 # CELERY_ACCEPT_CONTENT = ['application/json']
