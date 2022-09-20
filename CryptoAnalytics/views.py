@@ -1,11 +1,10 @@
-from .tasks import list_currencies
-
+# views.py
+# Условный пример при валидации формы, мы запускаем нашу задачу.
+# ...
 from .tasks import supper_sum
 def form_valid(self, form):
-
     supper_sum.delay(5, 7)
     return super().form_valid(form)
-
 
 # def form_valid(self, form):
 #     list_currencies.delay(5, 7)
