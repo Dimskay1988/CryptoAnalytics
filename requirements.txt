@@ -13,12 +13,13 @@ click-plugins==1.1.1
 click-repl==0.2.0
 Deprecated==1.2.13
 dj-database-url==1.0.0
-Django==4.0.7
+Django==4.0
+django-celery-beat==2.2.1
 django-celery-results==2.4.0
 django-filter==22.1
 django-on-heroku==1.1.2
-django-redis==5.2.0
-django-timezone-field==5.0
+django-redis @ git+https://github.com/niwinz/django-redis.git@38e630f051d6cc1f54e2e919c5751853282657ee
+django-timezone-field==4.2.3
 djangorestframework==3.13.1
 gunicorn==20.1.0
 idna==3.3
