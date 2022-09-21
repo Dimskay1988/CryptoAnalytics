@@ -14,14 +14,23 @@ bot = telebot.TeleBot(token=settings.TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
-    rmk.add(types.KeyboardButton('Зарегистрироваться'),
-            types.KeyboardButton('Зарегистрироваться с ипользованием данных телеграм'),
-            types.KeyboardButton('Просмотреть актуальный курс криптовалют'),
-            types.KeyboardButton('Выбрать криптовалюту и валюту'),
-            types.KeyboardButton('HitGab'))
-    msg = bot.send_message(message.chat.id, 'Выберите что вы хотите сделать', reply_markup=rmk)
-    bot.register_next_step_handler(msg, user_reply)
+    if Profile.objects.filter(id_user=message.chat.id).exists():
+        rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        rmk.add(types.KeyboardButton('Просмотреть актуальный курс криптовалют'),
+                types.KeyboardButton('Выбрать криптовалюту и валюту'),
+                types.KeyboardButton('HitGab'))
+        msg = bot.send_message(message.chat.id, 'Выберите что вы хотите сделать', reply_markup=rmk)
+        bot.register_next_step_handler(msg, user_reply)
+    else:
+        bot.send_message(message.chat.id,
+                         f'Для того что-бы начать пользоваться, небходимо пройти регистрацию. Зарегистрироваться можно'
+                         f' двумя спосабами: зарегистрироваться как новый пользователь; зарегистрироваться с'
+                         f' использованием данных телегам')
+        rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        rmk.add(types.KeyboardButton('Зарегистрироваться'),
+                types.KeyboardButton('Зарегистрироваться с ипользованием данных телеграм'))
+        msg = bot.send_message(message.chat.id, 'Пройдите регистрацию', reply_markup=rmk)
+        bot.register_next_step_handler(msg, user_reply)
 
 
 @bot.message_handler(commands=['admin'])
@@ -59,7 +68,7 @@ def user_reply(message):
         msg = bot.send_message(message.chat.id, 'Выберите криптовалюту', reply_markup=markup)
         bot.register_next_step_handler(msg, choice_cryptocurrency)
     elif message.text == 'Просмотреть актуальный курс криптовалют':
-        msg = bot.send_message(message.chat.id, 'ввести симввол')
+        msg = bot.send_message(message.chat.id, 'Костыль, надо чтото ввести')
         bot.register_next_step_handler(msg, coin_price)
     elif message.text == 'HitGab':
         bot.send_message(message.chat.id, 'https://github.com/Dimskay1988/CryptoAnalytics')
@@ -81,18 +90,15 @@ def new_last_name(message, last_name):
 
 
 def coin_price(message):
-    if Profile.objects.filter(id_user=message.chat.id).exists():
-        data = Coins.objects.all()
-        coin = ''
-        for co in data:
-            dat = co.updated_at.date()
-            tim = str(co.updated_at.time()).split('.')
-            coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
-        msg = bot.send_message(message.chat.id, f'Актуальный курс {dat} {tim[0]}: \n{coin}')
-        bot.register_next_step_handler(msg, user_reply)
-    else:
-        msg = bot.send_message(message.chat.id, f'Пройдите пожалуйста регистрацию')
-        bot.register_next_step_handler(msg, user_reply)
+    data = Coins.objects.all()
+    coin = ''
+    for co in data:
+        date = co.updated_at.date()
+        time = str(co.updated_at.time()).split('.')
+        coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
+    msg = bot.send_message(message.chat.id, f'Актуальный курс {date} {time[0]}: \n{coin}')
+    bot.register_next_step_handler(msg, user_reply)
+
 
 
 def choice_cryptocurrency(message):
@@ -119,8 +125,8 @@ def coin(message, currency):
         well = ''
         for i in data:
             well += str(i[f'{coin.lower()}'])
-        profil = Profile.objects.filter(id_user=message.chat.id)
-        MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=well)
+        profile = Profile.objects.filter(id_user=message.chat.id)
+        MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=well)
         bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
         rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
         btn1 = types.KeyboardButton("Получать актуальный курс выброной валюты")
@@ -134,28 +140,27 @@ def coin(message, currency):
 
 
 def task(message, coin, currency):
+    bot.send_message(message.chat.id, f'Вам будут приходить уведомления о актуальномм курсе каждую минуту')
     while True:
         time.sleep(60)
         ikm = types.InlineKeyboardMarkup()
         button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
         ikm.add(button1)
-
-        profil = Profile.objects.filter(id_user=message.chat.id).values()
-        well_message = MessageProfile.objects.filter(id_profile=profil[0]['id'])
+        profile = Profile.objects.filter(id_user=message.chat.id).values()
+        well_message = MessageProfile.objects.filter(id_profile=profile[0]['id'])
         wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))
-
         well_coin = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
         wel = (float(well_coin[0][f'{coin.lower()}']))
         if wel_price > wel:
             bot.send_message(message.chat.id, f' ⬇️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            profil = Profile.objects.filter(id_user=message.chat.id)
-            MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=wel)
+            profile = Profile.objects.filter(id_user=message.chat.id)
+            MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel)
         elif wel_price == wel:
             bot.send_message(message.chat.id, f' 🟰️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
         else:
             bot.send_message(message.chat.id, f' ⬆️️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            profil = Profile.objects.filter(id_user=message.chat.id)
-            MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=wel)
+            profile = Profile.objects.filter(id_user=message.chat.id)
+            MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel)
 
 
 @bot.callback_query_handler(func=lambda call: True)
