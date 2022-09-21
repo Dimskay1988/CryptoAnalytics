@@ -68,7 +68,11 @@ def user_reply(message):
         msg = bot.send_message(message.chat.id, 'Выберите криптовалюту', reply_markup=markup)
         bot.register_next_step_handler(msg, choice_cryptocurrency)
     elif message.text == 'Просмотреть актуальный курс криптовалют':
-        msg = bot.send_message(message.chat.id, 'Костыль, надо чтото ввести')
+        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        btn1 = types.KeyboardButton("Просмотреть")
+        markup.add(btn1)
+        msg = bot.send_message(message.chat.id, f'Актуальный курс на {datetime.now().hour}:{datetime.now().minute}',
+                               reply_markup=markup)
         bot.register_next_step_handler(msg, coin_price)
     elif message.text == 'HitGab':
         bot.send_message(message.chat.id, 'https://github.com/Dimskay1988/CryptoAnalytics')
@@ -93,12 +97,9 @@ def coin_price(message):
     data = Coins.objects.all()
     coin = ''
     for co in data:
-        date = co.updated_at.date()
-        time = str(co.updated_at.time()).split('.')
         coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
-    msg = bot.send_message(message.chat.id, f'Актуальный курс {date} {time[0]}: \n{coin}')
+    msg = bot.send_message(message.chat.id, f'{coin}')
     bot.register_next_step_handler(msg, user_reply)
-
 
 
 def choice_cryptocurrency(message):
