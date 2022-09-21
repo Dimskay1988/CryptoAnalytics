@@ -7,6 +7,7 @@ from apps.Coin.models import Coins
 from apps.Coin.views import CoinsView
 from telebot import types
 import telebot
+import time
 
 bot = telebot.TeleBot(token=settings.TOKEN)
 
@@ -30,7 +31,7 @@ def start(message):
 def user_reply(message):
     if message.text == 'Зарегистрироваться с ипользованием данных телеграм':
         Profile.objects.update_or_create(id_user=message.chat.id, defaults={'name': message.from_user.first_name,
-                                                                         'surname': message.from_user.last_name})
+                                                                            'surname': message.from_user.last_name})
         bot.send_message(message.chat.id,
                          f'Вы зарегистрированы как: {message.from_user.first_name} {message.from_user.last_name}')
     elif message.text == 'Зарегистрироваться':
@@ -95,12 +96,12 @@ def choice_cryptocurrency(message):
         btn4 = types.KeyboardButton("CNY")
         rmk.add(btn1, btn2, btn3, btn4)
         msg = bot.send_message(message.chat.id, f'Выберете валюту', reply_markup=rmk)
-        bot.register_next_step_handler(msg, choice_coin, currency)
+        bot.register_next_step_handler(msg, coin, currency)
     else:
         bot.send_message(message.chat.id, "Выберите из списка выше")
 
 
-def choice_coin(message, currency):
+def coin(message, currency):
     coin = message.text
     if (coin.lower()) in ['usd', 'eur', 'uah', 'cny']:
         bot.send_message(message.chat.id, f'Вы выбрали {currency} в {coin}')
@@ -111,8 +112,49 @@ def choice_coin(message, currency):
         profil = Profile.objects.filter(id_user=message.chat.id)
         MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=well)
         bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
+        rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        btn1 = types.KeyboardButton("Получать актуальный курс выброной валюты")
+        # btn2 = types.KeyboardButton("прислать уведомление когда курс выростет")
+        # btn3 = types.KeyboardButton("Прислать уведомление когда курс станет ниже")
+        rmk.add(btn1) ### rmk.add(btn1, btn2, btn3)
+        msg = bot.send_message(message.chat.id, f'Выберете действие', reply_markup=rmk)
+        bot.register_next_step_handler(msg, task, coin, currency)
     else:
         bot.send_message(message.chat.id, f'Вы не правильно выбрали валюту')
+
+
+def task(message, coin, currency):
+    while True:
+        time.sleep(60)
+        ikm = types.InlineKeyboardMarkup()
+        button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
+        ikm.add(button1)
+
+        profil = Profile.objects.filter(id_user=message.chat.id).values()
+        well_message = MessageProfile.objects.filter(id_profile=profil[0]['id'])
+        wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))
+
+        well_coin = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
+        wel = (float(well_coin[0][f'{coin.lower()}']))
+        if wel_price > wel:
+            bot.send_message(message.chat.id, f' ⬇️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+            profil = Profile.objects.filter(id_user=message.chat.id)
+            MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=wel)
+        elif wel_price == wel:
+            bot.send_message(message.chat.id, f' 🟰️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+        else:
+            bot.send_message(message.chat.id, f' ⬆️️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+            profil = Profile.objects.filter(id_user=message.chat.id)
+            MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=wel)
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+    if call.message:
+        if call.data == 'stop':
+            bot.send_message(call.message.chat.id, f'Cтоп бот')
+            mgs = bot.send_message(call.message.chat.id, f'Выберите что вы хотите сделать')
+            bot.register_next_step_handler(mgs, start)
 
 
 bot.polling(none_stop=True)
