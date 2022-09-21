@@ -12,10 +12,6 @@ import time
 bot = telebot.TeleBot(token=settings.TOKEN)
 
 
-def registration():
-    pass
-
-
 @bot.message_handler(commands=['start'])
 def start(message):
     rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
@@ -26,6 +22,20 @@ def start(message):
             types.KeyboardButton('HitGab'))
     msg = bot.send_message(message.chat.id, 'Выберите что вы хотите сделать', reply_markup=rmk)
     bot.register_next_step_handler(msg, user_reply)
+
+
+@bot.message_handler(commands=['admin'])
+def admin(message):
+    bot.send_message(message.chat.id, 'https://t.me/Dimskay1')
+
+
+@bot.message_handler(commands=['stats'])
+def stats(message):
+    profile = Profile.objects.filter(id_user=message.chat.id).values()
+    bot.send_message(message.chat.id, F'Вы зарегистрованы как {profile[0]["name"]} {profile[0]["surname"]}')
+    inform = MessageProfile.objects.filter(id_profile=profile[0]['id'])
+    info = inform.values().order_by('-id')[:1][0]
+    bot.send_message(message.chat.id, F'Последенне что вы отслеживали {info["currency"]} в {info["coin"]}')
 
 
 def user_reply(message):
@@ -116,7 +126,7 @@ def coin(message, currency):
         btn1 = types.KeyboardButton("Получать актуальный курс выброной валюты")
         # btn2 = types.KeyboardButton("прислать уведомление когда курс выростет")
         # btn3 = types.KeyboardButton("Прислать уведомление когда курс станет ниже")
-        rmk.add(btn1) ### rmk.add(btn1, btn2, btn3)
+        rmk.add(btn1)  ### rmk.add(btn1, btn2, btn3)
         msg = bot.send_message(message.chat.id, f'Выберете действие', reply_markup=rmk)
         bot.register_next_step_handler(msg, task, coin, currency)
     else:
