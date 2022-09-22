@@ -69,13 +69,32 @@ DEBUG=True/False
 ```sh
 TOKEN=5483495161:AaaF4AadsdfdaKJdkJ-D9xG_UdkKJSEZfd6c
 ```
+Run a docker container with Redis in the console.
+Loading the Redis image:
 And finally (to this moment):
+```sh
+sudo docker pull redis
+```
+Then start the container with the commands:
+```sh
+sudo docker run -p 127.0.0.1:16379:6379 --name redis-celery -d redis
+```
+Start the Celery Worker with the commands
+```sh
+celery -A CryptoAnalytics worker -l INFO
+```
+Start Celery beat
+```sh
+celery -A CryptoAnalytics beat -l INFO
+```
+Start the bot with the command:
+```sh
+python manage.py bot
+```
 ```sh
 (.venv)$ python manage.py runserver
 ```
-And navigate to `http://127.0.0.1:8000/`.
+And navigate to `http://127.0.0.1:8000/`
 
-List of possible urls may be seen in urls.py in TaskAllo and TaskAlloProject
-or with the help of Debug tips.
-
+List of possible urls may be seen in urls.py in Crypto-analytics.
 Have fun! :)
