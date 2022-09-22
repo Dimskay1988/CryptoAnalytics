@@ -1,10 +1,7 @@
-import json
-import string
 from datetime import datetime, date, time
 from django.conf import settings
 from apps.Employees.models import Profile, MessageProfile
 from apps.Coin.models import Coins
-from apps.Coin.views import CoinsView
 from telebot import types
 import telebot
 import time
@@ -53,6 +50,7 @@ def user_reply(message):
                                                                             'surname': message.from_user.last_name})
         bot.send_message(message.chat.id,
                          f'Вы зарегистрированы как: {message.from_user.first_name} {message.from_user.last_name}')
+        bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
     elif message.text == 'Зарегистрироваться':
         msg = bot.send_message(message.chat.id, 'Введите имя пользователя')
         bot.register_next_step_handler(msg, new_user_name)
@@ -89,17 +87,17 @@ def new_user_name(message):
 def new_last_name(message, last_name):
     first_name = message.text
     Profile.objects.update_or_create(id_user=message.chat.id, defaults={'name': last_name, 'surname': first_name})
-    msg = bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
-    bot.register_next_step_handler(msg, start)  # хз может и не надо
-
+    bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
+    bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
 
 def coin_price(message):
     data = Coins.objects.all()
     coin = ''
     for co in data:
         coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
-    msg = bot.send_message(message.chat.id, f'{coin}')
-    bot.register_next_step_handler(msg, user_reply)
+    bot.send_message(message.chat.id, f'{coin}')
+    bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
+
 
 
 def choice_cryptocurrency(message):
@@ -169,6 +167,7 @@ def task(message, coin, currency):
                 MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel,
                                               tracking_status='Trecking')
         else:
+            bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
             break
 
 
@@ -179,7 +178,7 @@ def callback(call):
             profile = Profile.objects.filter(id_user=call.message.chat.id)
             MessageProfile.objects.create(id_profile=profile[0], coin='Stop', currency='Stop', price=0.1,
                                           tracking_status='Stop')
-            bot.send_message(call.message.chat.id, 'Для продолжения нажмите "Меню" и выберите команду "/start"')
+            bot.send_message(call.message.chat.id, 'Для продолжения выберите команду "/start"')
 
 
 bot.polling(none_stop=True)
