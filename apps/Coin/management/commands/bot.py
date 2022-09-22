@@ -90,6 +90,7 @@ def new_last_name(message, last_name):
     bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
     bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
 
+
 def coin_price(message):
     data = Coins.objects.all()
     coin = ''
@@ -97,7 +98,6 @@ def coin_price(message):
         coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
     bot.send_message(message.chat.id, f'{coin}')
     bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
-
 
 
 def choice_cryptocurrency(message):
@@ -129,7 +129,7 @@ def coin(message, currency):
                                       tracking_status='Start tracking')
         bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
         rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
-        btn1 = types.KeyboardButton("Получать актуальный курс выброной валюты")
+        btn1 = types.KeyboardButton("Получать актуальный курс выбраной валюты")
         btn2 = types.KeyboardButton("Получать уведомление только о повышении курса ⬆")
         btn3 = types.KeyboardButton("Получать уведомление только о понижении курса ⬇")
         rmk.add(btn1, btn2, btn3)
@@ -140,20 +140,26 @@ def coin(message, currency):
 
 
 def task(message, coin, currency):
+    key = []
     message_keybord = message.text
-    if message_keybord == "Получать актуальный курс выброной валюты":
-        track = 1
+    if message_keybord == "Получать актуальный курс выбраной валюты":
+        key.append(1)
         bot.send_message(message.chat.id, f'Вам будут приходить уведомления о актуальномм курсе каждую минуту')
-    elif message.text == 'Получать уведомление только о повышении курса ⬆':
-        track = 2
+    elif message_keybord == 'Получать уведомление только о повышении курса ⬆':
+        key.append(2)
         bot.send_message(message.chat.id, f'Вам будут приходить уведомления только когда курс повысится')
-    elif message.text == 'Получать уведомление только о понижении курса ⬇':
-        track = 3
+    elif message_keybord == 'Получать уведомление только о понижении курса ⬇':
+        key.append(3)
         bot.send_message(message.chat.id, f'Вам будут приходить уведомления только когда курс уменьшится')
+    return message_task(message, coin, currency, key)
+
+
+def message_task(message, coin, currency, key):
     while True:
         time.sleep(60)
         profile = Profile.objects.filter(id_user=message.chat.id).values('id')[0]['id']
-        if MessageProfile.objects.filter(id_profile=profile).values().order_by('-id')[:1][0]['tracking_status'] != 'Stop':
+        if MessageProfile.objects.filter(id_profile=profile).values().order_by('-id')[:1][0][
+            'tracking_status'] != 'Stop':
             ikm = types.InlineKeyboardMarkup()
             button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
             ikm.add(button1)
@@ -162,14 +168,14 @@ def task(message, coin, currency):
             wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))
             well_coin = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
             wel = (float(well_coin[0][f'{coin.lower()}']))
-            if wel_price > wel and (track == 1 or track == 3):
+            if wel_price > wel and key in [[1], [3]]:
                 bot.send_message(message.chat.id, f' ⬇ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
                 profile = Profile.objects.filter(id_user=message.chat.id)
                 MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel,
                                               tracking_status='Trecking')
-            elif wel_price == wel and track == 1:
+            elif wel_price == wel and key in [[1]]:
                 bot.send_message(message.chat.id, f' 🟰️ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            elif wel_price < wel and (track == 1 or track == 2):
+            elif wel_price < wel and key in [[1], [2]]:
                 bot.send_message(message.chat.id, f' ⬆ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
                 profile = Profile.objects.filter(id_user=message.chat.id)
                 MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel,
