@@ -77,7 +77,7 @@ def user_reply(message):
     elif message.text == 'HitGab':
         bot.send_message(message.chat.id, 'https://github.com/Dimskay1988/CryptoAnalytics')
     else:
-        bot.send_message(message.chat.id, 'Пройдите пожалуйста регистрацию')
+        bot.send_message(message.chat.id, 'Для продолжения нажмите "Меню" и выберите команду "/start"')
 
 
 def new_user_name(message):
@@ -127,7 +127,8 @@ def coin(message, currency):
         for i in data:
             well += str(i[f'{coin.lower()}'])
         profile = Profile.objects.filter(id_user=message.chat.id)
-        MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=well)
+        MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=well,
+                                      tracking_status='Start tracking')
         bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
         rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
         btn1 = types.KeyboardButton("Получать актуальный курс выброной валюты")
@@ -144,33 +145,41 @@ def task(message, coin, currency):
     bot.send_message(message.chat.id, f'Вам будут приходить уведомления о актуальномм курсе каждую минуту')
     while True:
         time.sleep(60)
-        ikm = types.InlineKeyboardMarkup()
-        button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
-        ikm.add(button1)
-        profile = Profile.objects.filter(id_user=message.chat.id).values()
-        well_message = MessageProfile.objects.filter(id_profile=profile[0]['id'])
-        wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))
-        well_coin = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
-        wel = (float(well_coin[0][f'{coin.lower()}']))
-        if wel_price > wel:
-            bot.send_message(message.chat.id, f' ⬇️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            profile = Profile.objects.filter(id_user=message.chat.id)
-            MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel)
-        elif wel_price == wel:
-            bot.send_message(message.chat.id, f' 🟰️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+        profile = Profile.objects.filter(id_user=message.chat.id).values('id')[0]['id']
+        status = MessageProfile.objects.filter(id_profile=profile).values().order_by('-id')[:1][0]['tracking_status']
+        if status != 'Stop':
+            ikm = types.InlineKeyboardMarkup()
+            button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
+            ikm.add(button1)
+            profile = Profile.objects.filter(id_user=message.chat.id).values()
+            well_message = MessageProfile.objects.filter(id_profile=profile[0]['id'])
+            wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))
+            well_coin = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
+            wel = (float(well_coin[0][f'{coin.lower()}']))
+            if wel_price > wel:
+                bot.send_message(message.chat.id, f' ⬇ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+                profile = Profile.objects.filter(id_user=message.chat.id)
+                MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel,
+                                              tracking_status='Trecking')
+            elif wel_price == wel:
+                bot.send_message(message.chat.id, f' 🟰️ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+            else:
+                bot.send_message(message.chat.id, f' ⬆ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+                profile = Profile.objects.filter(id_user=message.chat.id)
+                MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel,
+                                              tracking_status='Trecking')
         else:
-            bot.send_message(message.chat.id, f' ⬆️️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            profile = Profile.objects.filter(id_user=message.chat.id)
-            MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel)
+            break
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     if call.message:
         if call.data == 'stop':
-            bot.send_message(call.message.chat.id, f'Cтоп бот')
-            mgs = bot.send_message(call.message.chat.id, f'Выберите что вы хотите сделать')
-            bot.register_next_step_handler(mgs, start)
+            profile = Profile.objects.filter(id_user=call.message.chat.id)
+            MessageProfile.objects.create(id_profile=profile[0], coin='Stop', currency='Stop', price=0.1,
+                                          tracking_status='Stop')
+            bot.send_message(call.message.chat.id, 'Для продолжения нажмите "Меню" и выберите команду "/start"')
 
 
 bot.polling(none_stop=True)

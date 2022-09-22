@@ -21,6 +21,7 @@ class MessageProfile(models.Model):
     price = models.FloatField(max_length=30, verbose_name='Price')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Date')
     id_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    tracking_status = models.TextField(verbose_name='Tracking status', null=True)
 
     def __str__(self):
         return f'#{self.id_profile}'
