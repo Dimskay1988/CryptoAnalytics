@@ -1,10 +1,7 @@
-import json
-import string
 from datetime import datetime, date, time
 from django.conf import settings
 from apps.Employees.models import Profile, MessageProfile
 from apps.Coin.models import Coins
-from apps.Coin.views import CoinsView
 from telebot import types
 import telebot
 import time
@@ -12,20 +9,39 @@ import time
 bot = telebot.TeleBot(token=settings.TOKEN)
 
 
-def registration():
-    pass
-
-
 @bot.message_handler(commands=['start'])
 def start(message):
-    rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
-    rmk.add(types.KeyboardButton('Зарегистрироваться'),
-            types.KeyboardButton('Зарегистрироваться с ипользованием данных телеграм'),
-            types.KeyboardButton('Просмотреть актуальный курс криптовалют'),
-            types.KeyboardButton('Выбрать криптовалюту и валюту'),
-            types.KeyboardButton('HitGab'))
-    msg = bot.send_message(message.chat.id, 'Выберите что вы хотите сделать', reply_markup=rmk)
-    bot.register_next_step_handler(msg, user_reply)
+    if Profile.objects.filter(id_user=message.chat.id).exists():
+        rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        rmk.add(types.KeyboardButton('Просмотреть актуальный курс криптовалют'),
+                types.KeyboardButton('Выбрать криптовалюту и валюту'),
+                types.KeyboardButton('HitGab'))
+        msg = bot.send_message(message.chat.id, 'Выберите что вы хотите сделать', reply_markup=rmk)
+        bot.register_next_step_handler(msg, user_reply)
+    else:
+        bot.send_message(message.chat.id,
+                         f'Для того что-бы начать пользоваться, небходимо пройти регистрацию. Зарегистрироваться можно'
+                         f' двумя спосабами: зарегистрироваться как новый пользователь; зарегистрироваться с'
+                         f' использованием данных телегам')
+        rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        rmk.add(types.KeyboardButton('Зарегистрироваться'),
+                types.KeyboardButton('Зарегистрироваться с ипользованием данных телеграм'))
+        msg = bot.send_message(message.chat.id, 'Пройдите регистрацию', reply_markup=rmk)
+        bot.register_next_step_handler(msg, user_reply)
+
+
+@bot.message_handler(commands=['admin'])
+def admin(message):
+    bot.send_message(message.chat.id, 'https://t.me/Dimskay1')
+
+
+@bot.message_handler(commands=['stats'])
+def stats(message):
+    profile = Profile.objects.filter(id_user=message.chat.id).values()
+    bot.send_message(message.chat.id, F'Вы зарегистрованы как {profile[0]["name"]} {profile[0]["surname"]}')
+    inform = MessageProfile.objects.filter(id_profile=profile[0]['id'])
+    info = inform.values().order_by('-id')[:1][0]
+    bot.send_message(message.chat.id, F'Последенне что вы отслеживали {info["currency"]} в {info["coin"]}')
 
 
 def user_reply(message):
@@ -34,6 +50,7 @@ def user_reply(message):
                                                                             'surname': message.from_user.last_name})
         bot.send_message(message.chat.id,
                          f'Вы зарегистрированы как: {message.from_user.first_name} {message.from_user.last_name}')
+        bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
     elif message.text == 'Зарегистрироваться':
         msg = bot.send_message(message.chat.id, 'Введите имя пользователя')
         bot.register_next_step_handler(msg, new_user_name)
@@ -49,12 +66,16 @@ def user_reply(message):
         msg = bot.send_message(message.chat.id, 'Выберите криптовалюту', reply_markup=markup)
         bot.register_next_step_handler(msg, choice_cryptocurrency)
     elif message.text == 'Просмотреть актуальный курс криптовалют':
-        msg = bot.send_message(message.chat.id, 'ввести симввол')
+        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        btn1 = types.KeyboardButton("Просмотреть")
+        markup.add(btn1)
+        msg = bot.send_message(message.chat.id, f'Актуальный курс на {datetime.now().hour}:{datetime.now().minute}',
+                               reply_markup=markup)
         bot.register_next_step_handler(msg, coin_price)
     elif message.text == 'HitGab':
         bot.send_message(message.chat.id, 'https://github.com/Dimskay1988/CryptoAnalytics')
     else:
-        bot.send_message(message.chat.id, 'Пройдите пожалуйста регистрацию')
+        bot.send_message(message.chat.id, 'Для продолжения нажмите "Меню" и выберите команду "/start"')
 
 
 def new_user_name(message):
@@ -66,23 +87,17 @@ def new_user_name(message):
 def new_last_name(message, last_name):
     first_name = message.text
     Profile.objects.update_or_create(id_user=message.chat.id, defaults={'name': last_name, 'surname': first_name})
-    msg = bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
-    bot.register_next_step_handler(msg, start)  # хз может и не надо
-
+    bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
+    bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
 
 def coin_price(message):
-    if Profile.objects.filter(id_user=message.chat.id).exists():
-        data = Coins.objects.all()
-        coin = ''
-        for co in data:
-            dat = co.updated_at.date()
-            tim = str(co.updated_at.time()).split('.')
-            coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
-        msg = bot.send_message(message.chat.id, f'Актуальный курс {dat} {tim[0]}: \n{coin}')
-        bot.register_next_step_handler(msg, user_reply)
-    else:
-        msg = bot.send_message(message.chat.id, f'Пройдите пожалуйста регистрацию')
-        bot.register_next_step_handler(msg, user_reply)
+    data = Coins.objects.all()
+    coin = ''
+    for co in data:
+        coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
+    bot.send_message(message.chat.id, f'{coin}')
+    bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
+
 
 
 def choice_cryptocurrency(message):
@@ -109,14 +124,15 @@ def coin(message, currency):
         well = ''
         for i in data:
             well += str(i[f'{coin.lower()}'])
-        profil = Profile.objects.filter(id_user=message.chat.id)
-        MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=well)
+        profile = Profile.objects.filter(id_user=message.chat.id)
+        MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=well,
+                                      tracking_status='Start tracking')
         bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
         rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
         btn1 = types.KeyboardButton("Получать актуальный курс выброной валюты")
         # btn2 = types.KeyboardButton("прислать уведомление когда курс выростет")
         # btn3 = types.KeyboardButton("Прислать уведомление когда курс станет ниже")
-        rmk.add(btn1) ### rmk.add(btn1, btn2, btn3)
+        rmk.add(btn1)  ### rmk.add(btn1, btn2, btn3)
         msg = bot.send_message(message.chat.id, f'Выберете действие', reply_markup=rmk)
         bot.register_next_step_handler(msg, task, coin, currency)
     else:
@@ -124,37 +140,45 @@ def coin(message, currency):
 
 
 def task(message, coin, currency):
+    bot.send_message(message.chat.id, f'Вам будут приходить уведомления о актуальномм курсе каждую минуту')
     while True:
         time.sleep(60)
-        ikm = types.InlineKeyboardMarkup()
-        button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
-        ikm.add(button1)
-
-        profil = Profile.objects.filter(id_user=message.chat.id).values()
-        well_message = MessageProfile.objects.filter(id_profile=profil[0]['id'])
-        wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))
-
-        well_coin = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
-        wel = (float(well_coin[0][f'{coin.lower()}']))
-        if wel_price > wel:
-            bot.send_message(message.chat.id, f' ⬇️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            profil = Profile.objects.filter(id_user=message.chat.id)
-            MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=wel)
-        elif wel_price == wel:
-            bot.send_message(message.chat.id, f' 🟰️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+        profile = Profile.objects.filter(id_user=message.chat.id).values('id')[0]['id']
+        status = MessageProfile.objects.filter(id_profile=profile).values().order_by('-id')[:1][0]['tracking_status']
+        if status != 'Stop':
+            ikm = types.InlineKeyboardMarkup()
+            button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
+            ikm.add(button1)
+            profile = Profile.objects.filter(id_user=message.chat.id).values()
+            well_message = MessageProfile.objects.filter(id_profile=profile[0]['id'])
+            wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))
+            well_coin = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
+            wel = (float(well_coin[0][f'{coin.lower()}']))
+            if wel_price > wel:
+                bot.send_message(message.chat.id, f' ⬇ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+                profile = Profile.objects.filter(id_user=message.chat.id)
+                MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel,
+                                              tracking_status='Trecking')
+            elif wel_price == wel:
+                bot.send_message(message.chat.id, f' 🟰️ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+            else:
+                bot.send_message(message.chat.id, f' ⬆ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+                profile = Profile.objects.filter(id_user=message.chat.id)
+                MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel,
+                                              tracking_status='Trecking')
         else:
-            bot.send_message(message.chat.id, f' ⬆️️  Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            profil = Profile.objects.filter(id_user=message.chat.id)
-            MessageProfile.objects.create(id_profile=profil[0], coin=coin, currency=currency, price=wel)
+            bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
+            break
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     if call.message:
         if call.data == 'stop':
-            bot.send_message(call.message.chat.id, f'Cтоп бот')
-            mgs = bot.send_message(call.message.chat.id, f'Выберите что вы хотите сделать')
-            bot.register_next_step_handler(mgs, start)
+            profile = Profile.objects.filter(id_user=call.message.chat.id)
+            MessageProfile.objects.create(id_profile=profile[0], coin='Stop', currency='Stop', price=0.1,
+                                          tracking_status='Stop')
+            bot.send_message(call.message.chat.id, 'Для продолжения выберите команду "/start"')
 
 
 bot.polling(none_stop=True)
