@@ -1,33 +1,30 @@
-from locale import currency
-
 from django.db import models
-from django.apps import apps
 
 
 class Profile(models.Model):
-    id_user = models.PositiveIntegerField(verbose_name='ID пользователя в сети', unique=True)
-    name = models.TextField(verbose_name='Имя пользователя', null=True)
-    surname = models.TextField(verbose_name='Фамилия пользователя', null=True)
+    id_user = models.PositiveIntegerField(verbose_name='ID user telegram', unique=True)
+    name = models.TextField(verbose_name='Name', null=True)
+    surname = models.TextField(verbose_name='Surname', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'#{self.id_user}{self.name}'
 
     class Meta:
-        verbose_name = 'Профиль'
-        verbose_name_plural = 'Профили'
+        verbose_name = 'Profile'
+        verbose_name_plural = 'Profiles'
 
 
 class MessageProfile(models.Model):
-    currency = models.TextField(verbose_name='Отслеживаемая криптовалют')
-    coin = models.TextField(verbose_name='Валюта')
-    price = models.FloatField(max_length=30, verbose_name='Стоимость')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
+    currency = models.TextField(verbose_name='Tracked Cryptocurrency')
+    coin = models.TextField(verbose_name='Coin')
+    price = models.FloatField(max_length=30, verbose_name='Price')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Date')
     id_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'#{self.id_profile}'
 
     class Meta:
-        verbose_name = 'Сообщение от профиля'
-        verbose_name_plural = 'Сообщения от профилей'
+        verbose_name = 'Profile message'
+        verbose_name_plural = 'Messages from profiles'
