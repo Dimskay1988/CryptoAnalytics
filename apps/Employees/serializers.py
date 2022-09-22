@@ -5,10 +5,10 @@ from .models import Profile, MessageProfile
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id', 'id_user', 'name', 'surname']
+        fields = '__all__'
 
 
 class MessageProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = MessageProfile
-        fields = ['id', 'id_profile', 'coin', 'currency', 'created_at']
+        fields = '__all__'
