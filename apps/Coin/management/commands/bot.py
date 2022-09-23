@@ -39,9 +39,6 @@ def admin(message):
 def stats(message):
     profile = Profile.objects.filter(id_user=message.chat.id).values()
     bot.send_message(message.chat.id, F'Вы зарегистрованы как {profile[0]["name"]} {profile[0]["surname"]}')
-    inform = MessageProfile.objects.filter(id_profile=profile[0]['id'])
-    info = inform.values().order_by('-id')[:1][0]
-    bot.send_message(message.chat.id, F'Последенне что вы отслеживали {info["currency"]} в {info["coin"]}')
 
 
 def user_reply(message):
@@ -156,7 +153,6 @@ def task(message, coin, currency):
 
 def message_task(message, coin, currency, key):
     while True:
-        time.sleep(60)
         profile = Profile.objects.filter(id_user=message.chat.id).values('id')[0]['id']
         if MessageProfile.objects.filter(id_profile=profile).values().order_by('-id')[:1][0][
             'tracking_status'] != 'Stop':
@@ -180,6 +176,7 @@ def message_task(message, coin, currency, key):
                 profile = Profile.objects.filter(id_user=message.chat.id)
                 MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=wel,
                                               tracking_status='Trecking')
+            time.sleep(60)
         else:
             bot.send_message(message.chat.id, 'Для продолжения выберите команду "/start"')
             break
