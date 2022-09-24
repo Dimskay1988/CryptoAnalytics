@@ -36,7 +36,7 @@ def admin(message):
 @bot.message_handler(commands=['stats'])
 def stats(message):
     profile = Profile.objects.filter(id_user=message.chat.id).values()
-    bot.send_message(message.chat.id, F'Вы зарегистрованы как {profile[0]["name"]} {profile[0]["surname"]}')
+    bot.send_message(message.chat.id, F'Вы зарегистрованы как {profile[0]["username"]} ')
     return start(message)
 
 
@@ -67,15 +67,17 @@ def new_user(message):
     msg = bot.send_message(message.chat.id, 'Введите имя пользователя')
     bot.register_next_step_handler(msg, new_username)
 
+
 def new_username(message):
     username = message.text
     msg = bot.send_message(message.chat.id, f'Хорошо, теперь введите пароль')
     bot.register_next_step_handler(msg, new_password, username)
 
+
 def new_password(message, username):
     password = message.text
     bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {username}')
-    Profile.objects.update_or_create(id_user=message.chat.id, defaults={'name': username, 'password': password})
+    Profile.objects.update_or_create(id_user=message.chat.id, defaults={'username': username, 'password': password})
     return start(message)
 
 
@@ -104,7 +106,6 @@ def choice_cryptocurrency(message):
         return start(message)
 
 
-
 def coin(message, currency):
     coin = message.text
     if (coin.lower()) in ['usd', 'eur', 'uah', 'cny']:
@@ -118,8 +119,6 @@ def coin(message, currency):
                                       tracking_status='Start tracking')
         bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
         return start(message)
-
-
 
 
 # def coin(message, currency):

@@ -3,8 +3,8 @@ from django.contrib.auth.models import AbstractUser
 
 
 class Profile(AbstractUser):
-    id_user = models.PositiveIntegerField(verbose_name='ID user telegram', unique=True, null=True, max_length=30)
-    name = models.TextField(verbose_name='Username', null=True)
+    id_user = models.PositiveIntegerField(verbose_name='ID user telegram', unique=True, null=True,)
+    username = models.TextField(verbose_name='Username', null=True,unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     password = models.TextField(verbose_name='Password')
 
