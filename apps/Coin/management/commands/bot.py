@@ -20,12 +20,9 @@ def start(message):
         bot.register_next_step_handler(msg, user_reply)
     else:
         bot.send_message(message.chat.id,
-                         f'Для того что-бы начать пользоваться, небходимо пройти регистрацию. Зарегистрироваться можно'
-                         f' двумя спосабами: зарегистрироваться как новый пользователь; зарегистрироваться с'
-                         f' использованием данных телегам')
+                         f'Для того что-бы начать пользоваться, небходимо пройти регистрацию.')
         rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
-        rmk.add(types.KeyboardButton('Зарегистрироваться'),
-                types.KeyboardButton('Зарегистрироваться с ипользованием данных телеграм'))
+        rmk.add(types.KeyboardButton('Зарегистрироваться'))
         msg = bot.send_message(message.chat.id, 'Пройдите регистрацию', reply_markup=rmk)
         bot.register_next_step_handler(msg, user_reply)
 
@@ -44,15 +41,8 @@ def stats(message):
 
 
 def user_reply(message):
-    if message.text == 'Зарегистрироваться с ипользованием данных телеграм':
-        Profile.objects.update_or_create(id_user=message.chat.id, defaults={'name': message.from_user.first_name,
-                                                                            'surname': message.from_user.last_name})
-        bot.send_message(message.chat.id,
-                         f'Вы зарегистрированы как: {message.from_user.first_name} {message.from_user.last_name}')
-        return start(message)
-    elif message.text == 'Зарегистрироваться':
-        msg = bot.send_message(message.chat.id, 'Введите имя пользователя')
-        bot.register_next_step_handler(msg, new_user_name)
+    if message.text == 'Зарегистрироваться':
+        return new_user(message)
     elif message.text == 'Получить актуальный курс криптовалюты':
         markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=True)
         btn1 = types.KeyboardButton("Litecoin")
@@ -73,16 +63,19 @@ def user_reply(message):
         return start(message)
 
 
-def new_user_name(message):
-    last_name = message.text
-    msg = bot.send_message(message.chat.id, f'Хорошо {last_name}, введите вашу фамилию')
-    bot.register_next_step_handler(msg, new_last_name, last_name)
+def new_user(message):
+    msg = bot.send_message(message.chat.id, 'Введите имя пользователя')
+    bot.register_next_step_handler(msg, new_username)
 
+def new_username(message):
+    username = message.text
+    msg = bot.send_message(message.chat.id, f'Хорошо, теперь введите пароль')
+    bot.register_next_step_handler(msg, new_password, username)
 
-def new_last_name(message, last_name):
-    first_name = message.text
-    Profile.objects.update_or_create(id_user=message.chat.id, defaults={'name': last_name, 'surname': first_name})
-    bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {last_name} {first_name}')
+def new_password(message, username):
+    password = message.text
+    bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {username}')
+    Profile.objects.update_or_create(id_user=message.chat.id, defaults={'name': username, 'password': password})
     return start(message)
 
 
