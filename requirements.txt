@@ -14,7 +14,7 @@ click-repl==0.2.0
 Deprecated==1.2.13
 dj-database-url==1.0.0
 Django==4.0.1
-django-celery-beat==2.2.1
+django-celery-beat==2.2.1--no-deps
 django-celery-results==2.4.0
 django-filter==22.1
 django-on-heroku==1.1.2
