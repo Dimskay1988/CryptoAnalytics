@@ -7,7 +7,7 @@ from .Forms import ProfileForm
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("id", "id_user", "name", "created_at")
     list_filter = ("id", 'name', "created_at")
-    search_fields = ("id", "id_user", "username", "created_at")
+    search_fields = ("id", "id_user", "name", "created_at")
     form = ProfileForm
 
 
