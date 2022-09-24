@@ -4,13 +4,12 @@ from django.contrib.auth.models import AbstractUser
 
 class Profile(AbstractUser):
     id_user = models.PositiveIntegerField(verbose_name='ID user telegram', unique=True, null=True)
-    name = models.TextField(verbose_name='Name', null=True)
-    surname = models.TextField(verbose_name='Surname', null=True)
+    name = models.TextField(verbose_name='Username', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    password = models.TextField(verbose_name='password')
+    password = models.TextField(verbose_name='Password')
 
     def __str__(self):
-        return f'#{self.id_user}{self.name}'
+        return f'#{self.id_user}{self.username}'
 
     class Meta:
         verbose_name = 'Profile'

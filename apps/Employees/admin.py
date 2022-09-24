@@ -5,9 +5,9 @@ from .Forms import ProfileForm
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("id", "id_user", "name", "surname", "created_at")
-    list_filter = ("id", 'name', "surname", "created_at")
-    search_fields = ("id", "id_user", "name", "surname", "created_at")
+    list_display = ("id", "id_user", "name", "created_at")
+    list_filter = ("id", 'name', "created_at")
+    search_fields = ("id", "id_user", "username", "created_at")
     form = ProfileForm
 
 
