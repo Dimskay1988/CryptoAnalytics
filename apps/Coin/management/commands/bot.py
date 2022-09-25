@@ -1,10 +1,13 @@
 from datetime import datetime, date, time
 from django.conf import settings
 from apps.Employees.models import Profile, MessageProfile
-from apps.Coin.models import Coins
+from apps.Coin.models import CoinsAll, Cryptocurrency
 from telebot import types
 import telebot
 import time
+from apps.Coin.urls import LastHourView
+from statistics import mean
+
 
 bot = telebot.TeleBot(token=settings.TOKEN)
 
@@ -82,7 +85,7 @@ def new_password(message, username):
 
 
 def coin_price(message):
-    data = Coins.objects.all()
+    data = CoinsAll.objects.all()
     coin = ''
     for co in data:
         coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
@@ -110,7 +113,17 @@ def coin(message, currency):
     coin = message.text
     if (coin.lower()) in ['usd', 'eur', 'uah', 'cny']:
         bot.send_message(message.chat.id, f'Вы выбрали {currency} в {coin}')
-        data = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
+        rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        btn1 = types.KeyboardButton("Получить актуальный курс")
+        btn2 = types.KeyboardButton("Получить средний курс за последний час")
+        rmk.add(btn1, btn2)
+        msg = bot.send_message(message.chat.id, f'Выберите действие', reply_markup=rmk)
+        bot.register_next_step_handler(msg, action_choice, currency, coin)
+
+def action_choice(message, currency, coin):
+    if message.text == "Получить актуальный курс":
+
+        data = CoinsAll.objects.filter(name=(currency.lower())).values((coin.lower()))
         well = ''
         for i in data:
             well += str(i[f'{coin.lower()}'])
@@ -119,6 +132,19 @@ def coin(message, currency):
                                       tracking_status='Start tracking')
         bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
         return start(message)
+    elif message.text == "Получить средний курс за последний час":
+        data = LastHourView().queryset.values()
+        lst = []
+        id_currency = Cryptocurrency.objects.filter(name=f'{currency.lower()}').values('id')[0]['id']
+        for i in data:
+            if i['id_cryptocurrency_id'] == id_currency:  # выбор криптовалюты по id
+                lst.append(i[f'{coin.lower()}'])  # выбор валюты
+        bot.send_message(message.chat.id, f'Средний курс {currency} {round(mean(lst), 2)} {coin.upper()}')
+        return start(message)
+
+
+
+
 
 
 # def coin(message, currency):
