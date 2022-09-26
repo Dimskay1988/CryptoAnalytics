@@ -1,14 +1,17 @@
-# views.py
-# Условный пример при валидации формы, мы запускаем нашу задачу.
-# ...
-from .tasks import supper_sum
-def form_valid(self, form):
-    supper_sum.delay(5, 7)
-    return super().form_valid(form)
+from rest_framework import generics
+from apps.Employees.serializers import RegisterSerializer, UserSerializer
+from rest_framework.response import Response
 
-# def form_valid(self, form):
-#     list_currencies.delay(5, 7)
-#     return super().form_valid(form)
 
-    # ListCurrencies.objects.aget_or_create(currency=i)
-    # return Response(data, status=status.HTTP_200_OK)
+class RegisterView(generics.GenericAPIView):
+    serializer_class = RegisterSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            "user": UserSerializer(user,
+                                   context=self.get_serializer_context()).data,
+            "message": "User has been successfully created",
+        })

@@ -4,9 +4,6 @@ from django.contrib.auth.models import AbstractUser
 
 class Profile(AbstractUser):
     id_telegram = models.PositiveIntegerField(verbose_name='ID user telegram', unique=True, null=True, blank=True)
-    username = models.TextField(verbose_name='Username', null=True, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    password = models.TextField(verbose_name='Password')
 
     def __str__(self):
         return f'{self.username}'

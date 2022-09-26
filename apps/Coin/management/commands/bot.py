@@ -1,13 +1,11 @@
-from datetime import datetime, date, time
 from django.conf import settings
 from apps.Employees.models import Profile, MessageProfile
 from apps.Coin.models import CoinsAll, Cryptocurrency
 from telebot import types
 import telebot
-import time
 from apps.Coin.urls import LastHourView
 from statistics import mean
-
+from apps.Employees.serializers import RegisterSerializer, UserSerializer
 
 bot = telebot.TeleBot(token=settings.TOKEN)
 
@@ -79,8 +77,11 @@ def new_username(message):
 
 def new_password(message, username):
     password = message.text
+    data = {'id_telegram': message.chat.id, 'username': username, 'password': password, 'repeat_password': password}
+    UserSerializer.create(self=message, validated_data=data)
     bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {username}')
-    Profile.objects.update_or_create(id_telegram=message.chat.id, defaults={'username': username, 'password': password})
+
+    # Profile.objects.update_or_create(id_telegram=message.chat.id, defaults={'username': username, 'password': password})
     return start(message)
 
 
@@ -119,6 +120,7 @@ def coin(message, currency):
         rmk.add(btn1, btn2)
         msg = bot.send_message(message.chat.id, f'Выберите действие', reply_markup=rmk)
         bot.register_next_step_handler(msg, action_choice, currency, coin)
+
 
 def action_choice(message, currency, coin):
     if message.text == "Получить актуальный курс":
