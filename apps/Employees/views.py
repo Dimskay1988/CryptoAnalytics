@@ -1,11 +1,8 @@
-from rest_framework import generics
-from rest_framework import serializers
 from rest_framework.viewsets import ModelViewSet
 from apps.Employees.models import Profile, MessageProfile
 from apps.Employees.serializers import ProfileSerializer, MessageProfileSerializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 
 class ProfileViewSet(ModelViewSet):
@@ -22,5 +19,3 @@ class MessageProfileViewSet(ModelViewSet):
     queryset = MessageProfile.objects.all()
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
-
-

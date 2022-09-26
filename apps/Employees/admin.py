@@ -5,10 +5,9 @@ from .models import Profile, MessageProfile
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    pass
-    # list_display = ("id_telegram")
-    # list_filter = ("id_telegram")
-    # search_fields = ("id_telegram")
+    list_display = ('username', 'id', "id_telegram", 'email')
+    list_filter = ("username", 'id')
+    search_fields = ("id_telegram", 'id')
     # # form = ProfileForm
 
 

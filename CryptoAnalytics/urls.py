@@ -18,9 +18,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from apps.router import routes
+from .views import RegisterView
 
 
 urlpatterns = [
+    path("register/", RegisterView.as_view()),
     path('admin/', admin.site.urls),
     path('api/', include(routes)),
 ]
