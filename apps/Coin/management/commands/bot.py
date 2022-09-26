@@ -88,7 +88,7 @@ def coin_price(message):
     data = CoinsAll.objects.all()
     coin = ''
     for co in data:
-        coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
+        coin += f'Криптовалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
     bot.send_message(message.chat.id, f'{coin}')
     return start(message)
 
@@ -141,10 +141,6 @@ def action_choice(message, currency, coin):
                 lst.append(i[f'{coin.lower()}'])  # выбор валюты
         bot.send_message(message.chat.id, f'Средний курс {currency} {round(mean(lst), 2)} {coin.upper()}')
         return start(message)
-
-
-
-
 
 
 # def coin(message, currency):
