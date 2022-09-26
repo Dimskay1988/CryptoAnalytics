@@ -1,6 +1,6 @@
-from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from apps.Employees.views import MessageProfileViewSet, ProfileViewSet
+
 router = DefaultRouter()
 
 router.register(r'message', MessageProfileViewSet, basename='message_profiles')

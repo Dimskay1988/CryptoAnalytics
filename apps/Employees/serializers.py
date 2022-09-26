@@ -12,3 +12,5 @@ class MessageProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = MessageProfile
         fields = '__all__'
+
+
