@@ -167,6 +167,6 @@ CELERY_CACHE_BACKEND = 'default'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # BOT settings
-TOKEN = config('TOKEN')
+TOKEN = config('TOKEN', default='default_token')
 
 django_on_heroku.settings(locals())
