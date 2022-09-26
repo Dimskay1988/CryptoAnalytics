@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Profile, MessageProfile
-from .Forms import ProfileForm
+from .forms import ProfileForm
 
 
 @admin.register(Profile)
