@@ -1,14 +1,15 @@
 from django.contrib import admin
 from .models import Profile, MessageProfile
-from .forms import ProfileForm
+# from .forms import ProfileForm
 
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("username", "id", "id_telegram", "created_at")
-    list_filter = ("id", 'username', "created_at")
-    search_fields = ("id", "id_telegram", "username", "created_at")
-    form = ProfileForm
+    pass
+    # list_display = ("id_telegram")
+    # list_filter = ("id_telegram")
+    # search_fields = ("id_telegram")
+    # # form = ProfileForm
 
 
 @admin.register(MessageProfile)
