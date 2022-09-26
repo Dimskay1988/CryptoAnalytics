@@ -14,7 +14,7 @@ class ProfileViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 class MessageProfileViewSet(ModelViewSet):
-    """Список всех пользователей"""
+    """List of all users"""
     serializer_class = MessageProfileSerializer
     queryset = MessageProfile.objects.all()
     authentication_classes = [SessionAuthentication, BasicAuthentication]

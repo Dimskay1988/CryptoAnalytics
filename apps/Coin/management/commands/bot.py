@@ -17,7 +17,7 @@ def start(message):
     if Profile.objects.filter(id_telegram=message.chat.id).exists():
         rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
         rmk.add(types.KeyboardButton('Просмотреть актуальный курс криптовалют'),
-                types.KeyboardButton('Получить актуальный курс криптовалюты'),
+                types.KeyboardButton('Выбрать криптовалюту и валюту'),
                 types.KeyboardButton('HitGab'))
         msg = bot.send_message(message.chat.id, 'Выберите что вы хотите сделать', reply_markup=rmk)
         bot.register_next_step_handler(msg, user_reply)
@@ -46,7 +46,7 @@ def stats(message):
 def user_reply(message):
     if message.text == 'Зарегистрироваться':
         return new_user(message)
-    elif message.text == 'Получить актуальный курс криптовалюты':
+    elif message.text == 'Выбрать криптовалюту и валюту':
         markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=True)
         btn1 = types.KeyboardButton("Litecoin")
         btn2 = types.KeyboardButton("Ethereum")
@@ -88,7 +88,7 @@ def coin_price(message):
     data = CoinsAll.objects.all()
     coin = ''
     for co in data:
-        coin += f'Криптавалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
+        coin += f'Криптовалюта: {co.name.upper()}, USD={co.usd}, EUR={co.eur}, UAH={co.uah}, CNY={co.cny}\n'
     bot.send_message(message.chat.id, f'{coin}')
     return start(message)
 
@@ -141,10 +141,6 @@ def action_choice(message, currency, coin):
                 lst.append(i[f'{coin.lower()}'])  # выбор валюты
         bot.send_message(message.chat.id, f'Средний курс {currency} {round(mean(lst), 2)} {coin.upper()}')
         return start(message)
-
-
-
-
 
 
 # def coin(message, currency):
