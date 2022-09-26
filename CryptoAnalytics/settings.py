@@ -126,15 +126,6 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Europe/Minsk'
 
-# CELERY_TASK_TRACK_STARTED = True
-# CELERY_TASK_TIME_LIMIT = 30 * 60
-
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': 'redis://127.0.0.1:16379/1',
-#     }
-# }
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
