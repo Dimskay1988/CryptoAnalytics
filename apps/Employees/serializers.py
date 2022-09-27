@@ -6,7 +6,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ('id', 'password', 'username', 'id_telegram', 'email')
-        # fields = ['id', 'username', 'password', 'id_telegram', 'created_at']
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
