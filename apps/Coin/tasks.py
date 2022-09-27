@@ -23,7 +23,7 @@ def update_coin():
     return Response(status=status.HTTP_200_OK)
 
 
-schedule.every(1).minutes.do(update_coin)
+schedule.every(1).minutes.do(update_coin())
 
 while True:
     schedule.run_pending()
