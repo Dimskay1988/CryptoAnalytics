@@ -62,6 +62,7 @@ def user_reply(message):
         return coin_price(message)
     elif message.text == 'Ссылка на сайт':
         bot.send_message(message.chat.id, 'https://one-crypto-analytics.herokuapp.com/')
+        return start(message)
     elif message.text == 'HitGab':
         bot.send_message(message.chat.id, 'https://github.com/Dimskay1988/CryptoAnalytics')
         return start(message)
