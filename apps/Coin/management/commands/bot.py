@@ -5,7 +5,7 @@ from telebot import types
 import telebot
 from apps.Coin.urls import LastHourView
 from statistics import mean
-from apps.Employees.serializers import RegisterSerializer, UserSerializer
+from apps.Employees.serializers import UserSerializer
 
 bot = telebot.TeleBot(token=settings.TOKEN)
 
