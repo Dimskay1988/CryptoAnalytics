@@ -19,7 +19,7 @@ def update_coin():
         Coin.objects.create(id_cryptocurrency=currency[0],
                             usd=data[name]['usd'], eur=data[name]['eur'],
                             uah=data[name]['uah'], cny=data[name]['cny'])
-
+    return Response(status=status.HTTP_200_OK)
 
 
 schedule.every(1).minutes.do(update_coin)
