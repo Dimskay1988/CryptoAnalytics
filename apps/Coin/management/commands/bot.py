@@ -16,6 +16,7 @@ def start(message):
         rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
         rmk.add(types.KeyboardButton('Просмотреть актуальный курс криптовалют'),
                 types.KeyboardButton('Выбрать криптовалюту и валюту'),
+                types.KeyboardButton('Ссылка на сайт'),
                 types.KeyboardButton('HitGab'))
         msg = bot.send_message(message.chat.id, 'Выберите что вы хотите сделать', reply_markup=rmk)
         bot.register_next_step_handler(msg, user_reply)
@@ -57,6 +58,8 @@ def user_reply(message):
         bot.register_next_step_handler(msg, choice_cryptocurrency)
     elif message.text == 'Просмотреть актуальный курс криптовалют':
         return coin_price(message)
+    elif message.text == 'Ссылка на сайт':
+        bot.send_message(message.chat.id, 'https://one-crypto-analytics.herokuapp.com/')
     elif message.text == 'HitGab':
         bot.send_message(message.chat.id, 'https://github.com/Dimskay1988/CryptoAnalytics')
         return start(message)
