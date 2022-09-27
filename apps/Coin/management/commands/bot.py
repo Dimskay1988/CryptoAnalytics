@@ -39,6 +39,8 @@ def admin(message):
 def stats(message):
     profile = Profile.objects.filter(id_telegram=message.chat.id).values()
     bot.send_message(message.chat.id, F'Вы зарегистрованы как {profile[0]["username"]} ')
+    bot.send_message(message.chat.id, F'Теперь вы сможете войти под этим логином и паролем на сайт')
+    bot.send_message(message.chat.id, 'https://one-crypto-analytics.herokuapp.com/')
     return start(message)
 
 
@@ -68,7 +70,7 @@ def user_reply(message):
 
 
 def new_user(message):
-    msg = bot.send_message(message.chat.id, 'Введите имя пользователя')
+    msg = bot.send_message(message.chat.id, 'Введите имя пользователя латинскими буквами')
     bot.register_next_step_handler(msg, new_username)
 
 
