@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 class CoinsView(viewsets.ModelViewSet):
     """
-    List of all cryptocurrencies in different currencies
+    The current rate of cryptocurrencies
     """
     serializer_class = CoinsSerializer
     queryset = CoinsAll.objects.all()
@@ -18,10 +18,20 @@ class CoinsView(viewsets.ModelViewSet):
 
 class LastHourView(viewsets.ModelViewSet):
     """
-    статистика за последний час
+    Statistics for the last hour
     """
     serializer_class = CoinSerializer
     queryset = Coin.objects.all().order_by("-created_at")[:360]
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+class LastDayView(viewsets.ModelViewSet):
+    """
+    Statistics for the last day
+    """
+    serializer_class = CoinSerializer
+    queryset = Coin.objects.all().order_by("-created_at")[:8640]
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
