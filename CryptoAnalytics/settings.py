@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     'apps.Coin.apps.CoinConfig',
     'apps.Employees.apps.EmployeesConfig',
     'rest_framework',
-    'django_celery_results',
-    'django_celery_beat',
+    # 'django_celery_results',
+    # 'django_celery_beat',
 
 ]
 
@@ -163,15 +163,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# REDIS settings
-REDIS_HOST = '127.0.0.1'
-REDIS_PORT = '6379'
+# # REDIS settings
+# REDIS_HOST = '127.0.0.1'
+# REDIS_PORT = '6379'
 
-# CELERY settings
-CELERY_BROKER_URL = 'redis://127.0.0.1:16379/0'
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND = 'default'
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+# # CELERY settings
+# CELERY_BROKER_URL = 'redis://127.0.0.1:16379/0'
+# CELERY_RESULT_BACKEND = 'django-db'
+# CELERY_CACHE_BACKEND = 'default'
+# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # BOT settings
 TOKEN = config('TOKEN', default='default_token')
