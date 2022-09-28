@@ -102,8 +102,8 @@ WSGI_APPLICATION = 'CryptoAnalytics.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': config('DJANGO_DB_ENGINE'),
-        'NAME': config('DJANGO_DB_NAME'),
+        'ENGINE': config('DJANGO_DB_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': config('DJANGO_DB_NAME',  default=BASE_DIR / 'db.sqlite3'),
         'USER': config('DJANGO_DB_USER', default=None),
         'PASSWORD': config('DJANGO_DB_PASSWORD', default=None),
         'HOST': config('DJANGO_DB_HOST', default=None),
