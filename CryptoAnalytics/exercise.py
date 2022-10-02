@@ -1,12 +1,14 @@
+import os, django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CryptoAnalytics.settings')
+django.setup()
+
 import schedule
 import time
+from CryptoAnalytics.tasks import update_coin
 
 
-def job():
-    print("I'm working...")
-
-
-schedule.every(3).seconds.do(job)
+schedule.every(1).minutes.do(update_coin)
 
 while True:
     schedule.run_pending()

@@ -45,8 +45,6 @@ INSTALLED_APPS = [
     'apps.Coin.apps.CoinConfig',
     'apps.Employees.apps.EmployeesConfig',
     'rest_framework',
-
-
 ]
 
 AUTH_USER_MODEL = 'Employees.Profile'
@@ -58,12 +56,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ]
 }
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         # 'rest_framework.authentication.BasicAuthentication',
-#         # 'rest_framework.authentication.SessionAuthentication',
-#     ]
-# }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -141,7 +134,6 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 
-
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -152,8 +144,8 @@ CACHES = {
     }
 }
 
-# TIME_ZONE = 'Europe/Minsk'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Minsk'
+# TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
