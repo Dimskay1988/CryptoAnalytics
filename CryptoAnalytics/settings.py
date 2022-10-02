@@ -45,8 +45,7 @@ INSTALLED_APPS = [
     'apps.Coin.apps.CoinConfig',
     'apps.Employees.apps.EmployeesConfig',
     'rest_framework',
-    # 'django_celery_results',
-    # 'django_celery_beat',
+
 
 ]
 
@@ -99,17 +98,24 @@ WSGI_APPLICATION = 'CryptoAnalytics.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': config('DJANGO_DB_ENGINE', default='django.db.backends.sqlite3'),
-        'NAME': config('DJANGO_DB_NAME',  default=BASE_DIR / 'db.sqlite3'),
-        'USER': config('DJANGO_DB_USER', default=None),
-        'PASSWORD': config('DJANGO_DB_PASSWORD', default=None),
-        'HOST': config('DJANGO_DB_HOST', default=None),
-        'PORT': config('DJANGO_DB_PORT', default=None),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': config('DJANGO_DB_ENGINE', default='django.db.backends.sqlite3'),
+#         'NAME': config('DJANGO_DB_NAME',  default=BASE_DIR / 'db.sqlite3'),
+#         'USER': config('DJANGO_DB_USER', default=None),
+#         'PASSWORD': config('DJANGO_DB_PASSWORD', default=None),
+#         'HOST': config('DJANGO_DB_HOST', default=None),
+#         'PORT': config('DJANGO_DB_PORT', default=None),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -134,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Europe/Minsk'
+
 
 CACHES = {
     "default": {
@@ -146,12 +152,13 @@ CACHES = {
     }
 }
 
-
-USE_TZ = True
+# TIME_ZONE = 'Europe/Minsk'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
