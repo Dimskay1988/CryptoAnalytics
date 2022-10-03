@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from .models import CoinsAll, Cryptocurrency, Coin
 
-class StatisticsSerializer(serializers.ModelSerializer):
 
+class StatisticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cryptocurrency
         fields = '__all__'

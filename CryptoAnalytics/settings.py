@@ -44,10 +44,9 @@ INSTALLED_APPS = [
 
     'apps.Coin.apps.CoinConfig',
     'apps.Employees.apps.EmployeesConfig',
+    'apps.Scheduler.apps.SchedulerConfig',
     'rest_framework',
-    # 'django_celery_results',
-    # 'django_celery_beat',
-
+    'django_apscheduler',
 ]
 
 AUTH_USER_MODEL = 'Employees.Profile'
@@ -59,12 +58,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ]
 }
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         # 'rest_framework.authentication.BasicAuthentication',
-#         # 'rest_framework.authentication.SessionAuthentication',
-#     ]
-# }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -99,17 +93,24 @@ WSGI_APPLICATION = 'CryptoAnalytics.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': config('DJANGO_DB_ENGINE', default='django.db.backends.sqlite3'),
-        'NAME': config('DJANGO_DB_NAME',  default=BASE_DIR / 'db.sqlite3'),
-        'USER': config('DJANGO_DB_USER', default=None),
-        'PASSWORD': config('DJANGO_DB_PASSWORD', default=None),
-        'HOST': config('DJANGO_DB_HOST', default=None),
-        'PORT': config('DJANGO_DB_PORT', default=None),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': config('DJANGO_DB_ENGINE', default='django.db.backends.sqlite3'),
+#         'NAME': config('DJANGO_DB_NAME',  default=BASE_DIR / 'db.sqlite3'),
+#         'USER': config('DJANGO_DB_USER', default=None),
+#         'PASSWORD': config('DJANGO_DB_PASSWORD', default=None),
+#         'HOST': config('DJANGO_DB_HOST', default=None),
+#         'PORT': config('DJANGO_DB_PORT', default=None),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -134,7 +135,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Europe/Minsk'
 
 CACHES = {
     "default": {
@@ -146,12 +146,13 @@ CACHES = {
     }
 }
 
-
-USE_TZ = True
+TIME_ZONE = 'Europe/Minsk'
+# TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -181,3 +182,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TOKEN = config('TOKEN', default='default_token')
 
 django_on_heroku.settings(locals())
+
+# settings django_apscheduler
+# Format string for displaying run time timestamps in the Django admin site. The default
+# just adds seconds to the standard Django format, which is useful for displaying the timestamps
+# for jobs that are scheduled to run on intervals of less than one minute.
+#
+# See https://docs.djangoproject.com/en/dev/ref/settings/#datetime-format for format string
+# syntax details.
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+
+# Maximum run time allowed for jobs that are triggered manually via the Django admin site, which
+# prevents admin site HTTP requests from timing out.
+#
+# Longer running jobs should probably be handed over to a background task processing library
+# that supports multiple background worker processes instead (e.g. Dramatiq, Celery, Django-RQ,
+# etc. See: https://djangopackages.org/grids/g/workers-queues-tasks/ for popular options).
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds

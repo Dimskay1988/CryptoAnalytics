@@ -1,10 +1,9 @@
 from django.conf import settings
 from apps.Employees.models import Profile, MessageProfile
-from apps.Coin.models import CoinsAll, Cryptocurrency
+from apps.Coin.models import CoinsAll, Cryptocurrency, Coin
 from telebot import types
+import time
 import telebot
-from apps.Coin.urls import LastHourView
-from statistics import mean
 from apps.Employees.serializers import UserSerializer
 
 bot = telebot.TeleBot(token=settings.TOKEN)
@@ -86,7 +85,6 @@ def new_password(message, username):
     data = {'id_telegram': message.chat.id, 'username': username, 'password': password, 'repeat_password': password}
     UserSerializer.create(self=message, validated_data=data)
     bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {username}')
-
     # Profile.objects.update_or_create(id_telegram=message.chat.id, defaults={'username': username, 'password': password})
     return start(message)
 
@@ -120,17 +118,6 @@ def coin(message, currency):
     coin = message.text
     if (coin.lower()) in ['usd', 'eur', 'uah', 'cny']:
         bot.send_message(message.chat.id, f'Вы выбрали {currency} в {coin}')
-        rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
-        btn1 = types.KeyboardButton("Получить актуальный курс")
-        btn2 = types.KeyboardButton("Получить средний курс за последний час")
-        rmk.add(btn1, btn2)
-        msg = bot.send_message(message.chat.id, f'Выберите действие', reply_markup=rmk)
-        bot.register_next_step_handler(msg, action_choice, currency, coin)
-
-
-def action_choice(message, currency, coin):
-    if message.text == "Получить актуальный курс":
-
         data = CoinsAll.objects.filter(name=(currency.lower())).values((coin.lower()))
         well = ''
         for i in data:
@@ -138,17 +125,16 @@ def action_choice(message, currency, coin):
         profile = Profile.objects.filter(id_telegram=message.chat.id)
         MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=well,
                                       tracking_status='Start tracking')
-        bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
-        return start(message)
-    elif message.text == "Получить средний курс за последний час":
-        data = LastHourView().queryset.values()
-        lst = []
-        id_currency = Cryptocurrency.objects.filter(name=f'{currency.lower()}').values('id')[0]['id']
-        for i in data:
-            if i['id_cryptocurrency_id'] == id_currency:  # выбор криптовалюты по id
-                lst.append(i[f'{coin.lower()}'])  # выбор валюты
-        bot.send_message(message.chat.id, f'Средний курс {currency} {round(mean(lst), 2)} {coin.upper()}')
-        return start(message)
+        rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        btn1 = types.KeyboardButton('Получить средний курс за последний час')
+        btn2 = types.KeyboardButton('Получать актуальный курс выбраной валюты')
+        btn3 = types.KeyboardButton("Получать уведомление только о повышении курса ⬆")
+        btn4 = types.KeyboardButton("Получать уведомление только о понижении курса ⬇")
+        rmk.add(btn1, btn2, btn3, btn4)
+        msg = bot.send_message(message.chat.id, f'Выберите действие', reply_markup=rmk)
+        bot.register_next_step_handler(msg, task, currency, coin, well)
+
+
 
 
 # def coin(message, currency):
@@ -175,62 +161,100 @@ def action_choice(message, currency, coin):
 #         return start(message)
 #
 #
-# def task(message, coin, currency):
+# def action_choice(message, coin, currency):
 #     key = []
+#     print(f'currency {currency}')
+#     print(f'coin {coin}')
 #     message_keybord = message.text
-#     if message_keybord == "Получать актуальный курс выбраной валюты":
+#     if message_keybord == 'Получать актуальный курс выбраной валюты':
+#         data = CoinsAll.objects.filter(name=(currency.lower())).values((coin.lower()))
+#         well = ''
+#         for i in data:
+#             well += str(i[f'{coin.lower()}'])
+#         profile = Profile.objects.filter(id_telegram=message.chat.id)
+#         MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=well,
+#                                       tracking_status='Start tracking')
+#         bot.send_message(message.chat.id, 'Вы будете получать уведомление о курсе валют каждую минуту')
+#         bot.send_message(message.chat.id, f'Актуальный курс {currency} {well} {coin.upper()}')
 #         key.append(1)
-#         bot.send_message(message.chat.id, f'Вам будут приходить уведомления о актуальномм курсе каждую минуту')
+#         return message_task(message, coin, currency)
 #     elif message_keybord == 'Получать уведомление только о повышении курса ⬆':
 #         key.append(2)
 #         bot.send_message(message.chat.id, f'Вам будут приходить уведомления только когда курс повысится')
 #     elif message_keybord == 'Получать уведомление только о понижении курса ⬇':
 #         key.append(3)
 #         bot.send_message(message.chat.id, f'Вам будут приходить уведомления только когда курс уменьшится')
+#     elif message_keybord == "Получить средний курс за последний час":
+#         data = LastHourView().queryset.values()
+#         lst = []
+#         id_currency = Cryptocurrency.objects.filter(name=f'{currency.lower()}').values('id')[0]['id']
+#         for i in data:
+#             if i['id_cryptocurrency_id'] == id_currency:  # выбор криптовалюты по id
+#                 lst.append(i[f'{coin.lower()}'])  # выбор валюты
+#         bot.send_message(message.chat.id, f'Средний курс {currency} {round(mean(lst), 2)} {coin.upper()}')
+#         return start(message)
+#     print(f'Ключ что печатать {key}')
 #     return message_task(message, coin, currency)
-#
-#
-# def message_task(message, coin, currency):
-#     profile = Profile.objects.filter(id_telegram=message.chat.id).values()
-#     well_message = MessageProfile.objects.filter(id_profile=profile[0]['id'])
-#     wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))  # отслеживаемый курс
-#     well_coin = Coins.objects.filter(name=(currency.lower())).values((coin.lower()))
-#     wel = (float(well_coin[0][f'{coin.lower()}']))  # актуальный курс
-#     prof = Profile.objects.filter(id_telegram=message.chat.id)
-#     ikm = types.InlineKeyboardMarkup()
-#     button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
-#     ikm.add(button1)
-#     if wel_price > wel:
-#         bot.send_message(message.chat.id, f' ⬇ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-#         MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
-#                                       tracking_status='Trecking')
-#     elif wel_price == wel:
-#         bot.send_message(message.chat.id, f' 🟰️ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-#     elif wel_price < wel:
-#         bot.send_message(message.chat.id, f' ⬆ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-#         MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
-#                                       tracking_status='Trecking')
-#
-#     if MessageProfile.objects.filter(
-#             id_profile=Profile.objects.filter(id_telegram=message.chat.id).values('id')[0]['id']).values().order_by(
-#         '-id')[:1][0]['tracking_status'] != 'Stop':
-#         message_task(message, coin, currency)
-#         print(MessageProfile.objects.filter(
-#             id_profile=Profile.objects.filter(id_telegram=message.chat.id).values('id')[0]['id']).values().order_by(
-#             '-id')[:1][0]['tracking_status'])
-#     else:
-#         print('сработало else')
-#         return
-#
-#
-# @bot.callback_query_handler(func=lambda call: True)
-# def callback(call):
-#     if call.data == 'stop':
-#         print("СТОП")
-#         profile = Profile.objects.filter(id_telegram=call.message.chat.id)
-#         MessageProfile.objects.create(id_profile=profile[0], coin='Stop', currency='Stop', price=0.1,
-#                                       tracking_status='Stop')
-#         return start(call.message), message_task(call.message, coin='bitcoin', currency='usd')
+def task(message, currency, coin ,wel):
+    key = []
+    message_keybord = message.text
+    if message_keybord == "Получать актуальный курс выбраной валюты":
+        key.append(1)
+        bot.send_message(message.chat.id, f'Вам будут приходить уведомления о актуальномм курсе каждую минуту')
+        bot.send_message(message.chat.id, f'Актуальный курс 1 {currency} = {wel} {coin}')
+    elif message_keybord == 'Получать уведомление только о повышении курса ⬆':
+        key.append(2)
+        bot.send_message(message.chat.id, f'Вам будут приходить уведомления только когда курс повысится')
+    elif message_keybord == 'Получать уведомление только о понижении курса ⬇':
+        key.append(3)
+        bot.send_message(message.chat.id, f'Вам будут приходить уведомления только когда курс уменьшится')
+    print(f'def task: ключ {key}')
+    return message_task(message, coin, currency)
+
+
+def message_task(message, coin, currency):
+    print(f'{coin}, {currency}')
+    time.sleep(60)
+    profile = Profile.objects.filter(id_telegram=message.chat.id).values()
+    well_message = MessageProfile.objects.filter(id_profile=profile[0]['id'])
+    wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))  # отслеживаемый курс
+    well_coin = CoinsAll.objects.filter(name=(currency.lower())).values((coin.lower()))
+    wel = (float(well_coin[0][f'{coin.lower()}']))  # актуальный курс
+    prof = Profile.objects.filter(id_telegram=message.chat.id)
+    if MessageProfile.objects.filter(
+            id_profile=Profile.objects.filter(id_telegram=message.chat.id).values('id')[0]['id']).values().order_by(
+        '-id')[:1][0]['tracking_status'] != 'Stop':
+        ikm = types.InlineKeyboardMarkup()
+        button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
+        ikm.add(button1)
+        if wel_price > wel:
+            bot.send_message(message.chat.id, f' ⬇ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+            MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
+                                          tracking_status='Trecking')
+            return message_task(message, coin, currency)
+        elif wel_price == wel:
+            bot.send_message(message.chat.id, f' 🟰️ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+            MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
+                                          tracking_status='Trecking')
+            return message_task(message, coin, currency)
+        elif wel_price < wel:
+            bot.send_message(message.chat.id, f' ⬆ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+            MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
+                                          tracking_status='Trecking')
+            return message_task(message, coin, currency)
+    else:
+        print('сработало else')
+        return
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+    if call.data == 'stop':
+        print("СТОП")
+        profile = Profile.objects.filter(id_telegram=call.message.chat.id)
+        MessageProfile.objects.create(id_profile=profile[0], coin='Stop', currency='Stop', price=0.1,
+                                      tracking_status='Stop')
+        return start(call.message)
 
 
 bot.polling(none_stop=True)
