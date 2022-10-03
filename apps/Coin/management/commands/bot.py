@@ -87,7 +87,6 @@ def new_password(message, username):
     data = {'id_telegram': message.chat.id, 'username': username, 'password': password, 'repeat_password': password}
     UserSerializer.create(self=message, validated_data=data)
     bot.send_message(message.chat.id, f'Отлично, вы зарегистрированы как {username}')
-
     # Profile.objects.update_or_create(id_telegram=message.chat.id, defaults={'username': username, 'password': password})
     return start(message)
 
@@ -121,6 +120,13 @@ def coin(message, currency):
     coin = message.text
     if (coin.lower()) in ['usd', 'eur', 'uah', 'cny']:
         bot.send_message(message.chat.id, f'Вы выбрали {currency} в {coin}')
+        data = CoinsAll.objects.filter(name=(currency.lower())).values((coin.lower()))
+        well = ''
+        for i in data:
+            well += str(i[f'{coin.lower()}'])
+        profile = Profile.objects.filter(id_telegram=message.chat.id)
+        MessageProfile.objects.create(id_profile=profile[0], coin=coin, currency=currency, price=well,
+                                      tracking_status='Start tracking')
         rmk = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
         btn1 = types.KeyboardButton('Получить средний курс за последний час')
         btn2 = types.KeyboardButton('Получать актуальный курс выбраной валюты')
@@ -128,7 +134,9 @@ def coin(message, currency):
         btn4 = types.KeyboardButton("Получать уведомление только о понижении курса ⬇")
         rmk.add(btn1, btn2, btn3, btn4)
         msg = bot.send_message(message.chat.id, f'Выберите действие', reply_markup=rmk)
-        bot.register_next_step_handler(msg, task, currency, coin)
+        bot.register_next_step_handler(msg, task, currency, coin, well)
+
+
 
 
 # def coin(message, currency):
@@ -189,23 +197,25 @@ def coin(message, currency):
 #         return start(message)
 #     print(f'Ключ что печатать {key}')
 #     return message_task(message, coin, currency)
-def task(message, coin, currency):
+def task(message, currency, coin ,wel):
     key = []
     message_keybord = message.text
     if message_keybord == "Получать актуальный курс выбраной валюты":
         key.append(1)
         bot.send_message(message.chat.id, f'Вам будут приходить уведомления о актуальномм курсе каждую минуту')
+        bot.send_message(message.chat.id, f'Актуальный курс 1 {currency} = {wel} {coin}')
     elif message_keybord == 'Получать уведомление только о повышении курса ⬆':
         key.append(2)
         bot.send_message(message.chat.id, f'Вам будут приходить уведомления только когда курс повысится')
     elif message_keybord == 'Получать уведомление только о понижении курса ⬇':
         key.append(3)
         bot.send_message(message.chat.id, f'Вам будут приходить уведомления только когда курс уменьшится')
-    print(f'ключ {key}')
+    print(f'def task: ключ {key}')
     return message_task(message, coin, currency)
 
 
 def message_task(message, coin, currency):
+    print(f'{coin}, {currency}')
     time.sleep(60)
     profile = Profile.objects.filter(id_telegram=message.chat.id).values()
     well_message = MessageProfile.objects.filter(id_profile=profile[0]['id'])
