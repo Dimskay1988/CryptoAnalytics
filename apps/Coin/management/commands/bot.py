@@ -4,8 +4,6 @@ from apps.Coin.models import CoinsAll, Cryptocurrency, Coin
 from telebot import types
 import time
 import telebot
-from apps.Coin.urls import LastHourView
-from statistics import mean
 from apps.Employees.serializers import UserSerializer
 
 bot = telebot.TeleBot(token=settings.TOKEN)
