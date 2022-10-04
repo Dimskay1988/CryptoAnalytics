@@ -11,7 +11,6 @@ The bot can display the current rates of several currencies, as well as separate
 
 
 The first thing to do is to clone the repository:
-```
 
 ```sh
 $ https://github.com/Dimskay1988/CryptoAnalytics.git
