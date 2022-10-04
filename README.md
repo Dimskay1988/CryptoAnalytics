@@ -1,10 +1,14 @@
 # Crypto Analytics
 
 Crypto Analytics is a project that allows you to monitor the rate of cryptocurrency based on DRF, telegram bot, planner.
+
 The user can register through the API, as well as through the telegram bot.
+
 The cryptocurrency rate is automatically updated every minute, and the user receives notifications of changes.
 The ability to receive data on courses for the day, hour, minute, list of users.
+
 The bot can display the current rates of several currencies, as well as separately for the selected cryptocurrency in different currencies. Get the average rate for the past hour, track the current rate of the cryptocurrency and issue alerts about its change, or track only the increase or decrease in the current rate.
+
 
 The first thing to do is to clone the repository:
 ```
