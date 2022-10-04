@@ -1,4 +1,3 @@
-from pycoingecko import CoinGeckoAPI
 from apps.Coin.models import CoinsAll, Cryptocurrency, Coin
 import logging
 from django.conf import settings
@@ -8,15 +7,16 @@ from django.core.management.base import BaseCommand
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 from django_apscheduler import util
-
-cg = CoinGeckoAPI()
+import requests
 
 logger = logging.getLogger(__name__)
 
 
 def my_job():
-    data = cg.get_price(ids=['bitcoin', 'litecoin', 'ethereum', 'solana', 'cardano', 'tether'],
-                        vs_currencies=['usd', 'eur', 'uah', 'cny'])
+    data = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Clitecoin%2Cethereum%2Csolana%2Ccardano%2Ctether&vs_currencies=usd%2Ceur%2Cuah%2Ccny').json()
+
+    # data = cg.get_price(ids=['bitcoin', 'litecoin', 'ethereum', 'solana', 'cardano', 'tether'],
+    #                     vs_currencies=['usd', 'eur', 'uah', 'cny'])
     for name in data:
         CoinsAll.objects.update_or_create(name=name, defaults={'usd': data[name]['usd'], 'eur': data[name]['eur'],
                                                                'uah': data[name]['uah'], 'cny': data[name]['cny']})
