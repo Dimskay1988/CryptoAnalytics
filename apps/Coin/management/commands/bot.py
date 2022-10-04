@@ -214,34 +214,42 @@ def task(message, currency, coin ,wel):
 
 def message_task(message, coin, currency):
     print(f'{coin}, {currency}')
-    time.sleep(60)
+    # time.sleep(60)
     profile = Profile.objects.filter(id_telegram=message.chat.id).values()
     well_message = MessageProfile.objects.filter(id_profile=profile[0]['id'])
     wel_price = (float(well_message.values().order_by('-id')[:1][0]['price']))  # отслеживаемый курс
     well_coin = CoinsAll.objects.filter(name=(currency.lower())).values((coin.lower()))
     wel = (float(well_coin[0][f'{coin.lower()}']))  # актуальный курс
     prof = Profile.objects.filter(id_telegram=message.chat.id)
-    if MessageProfile.objects.filter(
-            id_profile=Profile.objects.filter(id_telegram=message.chat.id).values('id')[0]['id']).values().order_by(
-        '-id')[:1][0]['tracking_status'] != 'Stop':
-        ikm = types.InlineKeyboardMarkup()
-        button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
-        ikm.add(button1)
-        if wel_price > wel:
-            bot.send_message(message.chat.id, f' ⬇ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
-                                          tracking_status='Trecking')
-            return message_task(message, coin, currency)
-        elif wel_price == wel:
-            bot.send_message(message.chat.id, f' 🟰️ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
-                                          tracking_status='Trecking')
-            return message_task(message, coin, currency)
-        elif wel_price < wel:
-            bot.send_message(message.chat.id, f' ⬆ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
-            MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
-                                          tracking_status='Trecking')
-            return message_task(message, coin, currency)
+    for i in range(15):
+        time.sleep(4)
+        status = MessageProfile.objects.filter(
+                id_profile=Profile.objects.filter(id_telegram=message.chat.id).values('id')[0]['id']).values().order_by(
+            '-id')[:1][0]['tracking_status']
+        if status != 'Stop' and i == 14:
+            ikm = types.InlineKeyboardMarkup()
+            button1 = types.InlineKeyboardButton("СТОП", callback_data='stop')
+            ikm.add(button1)
+            if wel_price > wel:
+                bot.send_message(message.chat.id, f' ⬇ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+                MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
+                                              tracking_status='Trecking')
+                return message_task(message, coin, currency)
+            elif wel_price == wel:
+                bot.send_message(message.chat.id, f' 🟰️ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+                MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
+                                              tracking_status='Trecking')
+                return message_task(message, coin, currency)
+            elif wel_price < wel:
+                bot.send_message(message.chat.id, f' ⬆ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
+                MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
+                                              tracking_status='Trecking')
+                return message_task(message, coin, currency)
+        else:
+            if status == 'Stop':
+                print('сработало Stop')
+                return
+
     else:
         print('сработало else')
         return

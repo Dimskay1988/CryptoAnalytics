@@ -27,6 +27,7 @@ Markdown==3.4.1
 packaging==21.3
 prompt-toolkit==3.0.30
 psycopg2==2.9.3
+psycopg2-binary==2.9.3
 pycoingecko==2.2.0
 pydantic==1.10.2
 pyparsing==3.0.9
