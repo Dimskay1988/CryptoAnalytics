@@ -1,2 +1,4 @@
 web: gunicorn CryptoAnalytics.wsgi
-release: python manage.py bot
+bot: python manage.py bot
+scheduler: python manage.py runapscheduler
+
