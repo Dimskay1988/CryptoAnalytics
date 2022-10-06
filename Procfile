@@ -1,4 +1,3 @@
+worker: python manage.py bot
+worker: python manage.py runapscheduler
 web: gunicorn CryptoAnalytics.wsgi
-web: python manage.py bot
-web: python manage.py runapscheduler
-
