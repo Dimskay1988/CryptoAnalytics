@@ -1,2 +1,2 @@
 web: gunicorn CryptoAnalytics.wsgi
-bot: gunicorn python manage.py bot
+release: python manage.py bot
