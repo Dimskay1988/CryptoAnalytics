@@ -1,3 +1,3 @@
 urgentworker: python manage.py bot
-release: python manage.py runapscheduler
+worker: python manage.py runapscheduler:work
 web: gunicorn CryptoAnalytics.wsgi
