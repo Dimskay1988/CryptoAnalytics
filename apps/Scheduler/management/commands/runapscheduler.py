@@ -14,9 +14,6 @@ logger = logging.getLogger(__name__)
 
 def my_job():
     data = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Clitecoin%2Cethereum%2Csolana%2Ccardano%2Ctether&vs_currencies=usd%2Ceur%2Cuah%2Ccny').json()
-
-    # data = cg.get_price(ids=['bitcoin', 'litecoin', 'ethereum', 'solana', 'cardano', 'tether'],
-    #                     vs_currencies=['usd', 'eur', 'uah', 'cny'])
     for name in data:
         CoinsAll.objects.update_or_create(name=name, defaults={'usd': data[name]['usd'], 'eur': data[name]['eur'],
                                                                'uah': data[name]['uah'], 'cny': data[name]['cny']})
@@ -39,7 +36,6 @@ def delete_old_job_executions(max_age=604_800):
     This job deletes APScheduler job execution entries older than `max_age` from the database.
     It helps to prevent the database from filling up with old historical records that are no
     longer useful.
-
     :param max_age: The maximum length of time to retain historical job execution records.
                     Defaults to 7 days.
     """
