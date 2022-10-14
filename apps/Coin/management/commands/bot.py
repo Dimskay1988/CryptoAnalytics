@@ -2,14 +2,45 @@ from statistics import mean
 from django.conf import settings
 from apps.Coin.views import LastHourView
 from apps.Employees.models import Profile, MessageProfile
-from apps.Coin.models import CoinsAll, Cryptocurrency
+from apps.Coin.models import CoinsAll, Cryptocurrency, Coin
 from telebot import types
 import time
+import requests
 import re
 import telebot
 from apps.Employees.serializers import UserSerializer
+import schedule
+import logging
+import threading
+
+logger = logging.getLogger(__name__)
+
+
+def my_job():
+    data = requests.get(
+        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Clitecoin%2Cethereum%2Csolana%2Ccardano%2Ctether&vs_currencies=usd%2Ceur%2Cuah%2Ccny').json()
+    for name in data:
+        CoinsAll.objects.update_or_create(name=name, defaults={'usd': data[name]['usd'], 'eur': data[name]['eur'],
+                                                               'uah': data[name]['uah'], 'cny': data[name]['cny']})
+        Cryptocurrency.objects.update_or_create(name=name)
+        Coin.objects.create(id_cryptocurrency=Cryptocurrency.objects.filter(name=name)[0],
+                            usd=data[name]['usd'], eur=data[name]['eur'],
+                            uah=data[name]['uah'], cny=data[name]['cny'])
+
+
+schedule.every(1).minutes.do(my_job)
+
+
+def go():
+    while 1:
+        schedule.run_pending()
+        time.sleep(1)
+
 
 bot = telebot.TeleBot(token=settings.TOKEN)
+
+t = threading.Thread(target=go, name="тест")
+t.start()
 
 
 @bot.message_handler(commands=['start'])
@@ -200,8 +231,8 @@ def message_task(message, coin, currency):
                 MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
                                               tracking_status='Trecking')
                 bot.send_message(message.chat.id,
-                         f' ⬇ Курс 1 {currency} = {wel} {coin}\n Курс снизился на {round(wel_price - wel), 2} {coin}',
-                         reply_markup=ikm)
+                                 f' ⬇ Курс 1 {currency} = {wel} {coin}\n Курс снизился на {round(wel_price - wel), 2} {coin}',
+                                 reply_markup=ikm)
                 return message_task(message, coin, currency)
             elif wel_price == wel:
                 bot.send_message(message.chat.id, f' 🟰️ Курс 1 {currency} = {wel} {coin}', reply_markup=ikm)
@@ -210,8 +241,8 @@ def message_task(message, coin, currency):
                 return message_task(message, coin, currency)
             elif wel_price < wel:
                 bot.send_message(message.chat.id,
-                         f' ⬆ Курс 1 {currency} = {wel} {coin}\n Курс вырос на {round(wel - wel_price), 2} {coin}',
-                         reply_markup=ikm)
+                                 f' ⬆ Курс 1 {currency} = {wel} {coin}\n Курс вырос на {round(wel - wel_price), 2} {coin}',
+                                 reply_markup=ikm)
                 MessageProfile.objects.create(id_profile=prof[0], coin=coin, currency=currency, price=wel,
                                               tracking_status='Trecking')
                 return message_task(message, coin, currency)
