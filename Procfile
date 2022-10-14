@@ -1,2 +1,2 @@
-urgentworker: python manage.py bot
+worker: python manage.py bot
 web: gunicorn CryptoAnalytics.wsgi
