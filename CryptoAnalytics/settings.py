@@ -44,9 +44,7 @@ INSTALLED_APPS = [
 
     'apps.Coin.apps.CoinConfig',
     'apps.Employees.apps.EmployeesConfig',
-    'apps.Scheduler.apps.SchedulerConfig',
     'rest_framework',
-    'django_apscheduler',
 ]
 
 AUTH_USER_MODEL = 'Employees.Profile'
